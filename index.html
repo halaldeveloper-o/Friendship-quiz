@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Friendship Quiz - Professional Multi-Lang V6</title>
+    <title>Friendship Quiz Pro - Ultimate V7</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #f0fdf4; transition: 0.3s; }
+        body { font-family: 'Poppins', sans-serif; background-color: #f0fdf4; }
         .card { border-radius: 1.5rem; transition: 0.3s; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
         .btn-green { background-color: #28a745; color: white; min-height: 55px; }
         .hidden-section { display: none !important; }
@@ -17,14 +17,15 @@
         .wrong-ans { background-color: #ef4444 !important; color: white !important; border-color: #dc2626 !important; }
         .avatar-selected { border: 4px solid #28a745; background-color: #dcfce7; transform: scale(1.05); }
         .timer-bar { height: 4px; background: #28a745; width: 100%; transition: width 1s linear; }
-        .history-item { cursor: pointer; border-left: 5px solid #28a745; }
+        .history-item { cursor: pointer; border-left: 5px solid #28a745; transition: 0.2s; }
+        .history-item:hover { background-color: #f9fafb; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center p-4">
 
     <div class="w-full max-w-md flex justify-between mb-4 items-center">
         <div class="flex gap-2">
-            <button onclick="showSection('settings')" class="p-2 bg-white rounded-full shadow text-gray-600"><i class="fas fa-cog"></i></button>
+            <button onclick="showSection('settings')" class="p-2 bg-white rounded-full shadow text-gray-600 active:scale-90 transition"><i class="fas fa-cog"></i></button>
             <select id="langSwitcher" onchange="changeLanguage(this.value)" class="bg-white border py-1 px-3 rounded-lg shadow-sm text-xs font-bold outline-none">
                 <option value="bn">বাংলা</option>
                 <option value="en">English</option>
@@ -141,7 +142,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, updateDoc, arrayUnion, onSnapshot, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, updateDoc, arrayUnion, onSnapshot, getDoc, collection, query, where, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
@@ -158,7 +159,7 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        window.fs = { db, doc, setDoc, updateDoc, arrayUnion, onSnapshot, getDoc, collection, query, where, getDocs };
+        window.fs = { db, doc, setDoc, updateDoc, arrayUnion, onSnapshot, getDoc, collection, query, where, getDocs, deleteDoc };
         window.fbAuth = { auth, signInWithPopup, provider, signOut };
 
         onAuthStateChanged(auth, async (user) => {
@@ -166,6 +167,10 @@
                 document.getElementById('displayUserName').innerText = user.displayName.split(' ')[0];
                 document.getElementById('userImg').innerHTML = `<img src="${user.photoURL}" class="w-full h-full object-cover">`;
                 document.getElementById('authBtn').innerText = "Logout";
+            } else {
+                document.getElementById('displayUserName').innerText = "Guest";
+                document.getElementById('userImg').innerHTML = `<i class="fas fa-user text-gray-400 text-[10px]"></i>`;
+                document.getElementById('authBtn').innerText = "Login";
             }
         });
 
@@ -174,62 +179,36 @@
 
     <script>
         const langDict = {
-            bn: {
-                welcomeTitle: "কুইজ তৈরি করুন 🐼",
-                btnContinue: "চালিয়ে যান →",
-                btnHistory: "আমার আগের কুইজ ও ইতিহাস দেখুন",
-                btnSkip: "এই প্রশ্নটি স্কিপ করুন ➔",
-                btnAddCustom: "নিজের প্রশ্ন যোগ করুন",
-                btnSave: "সেভ করুন",
-                shareTitle: "কুইজ লিঙ্ক রেডি!",
-                btnCopy: "কপি লিঙ্ক (Copy Link)",
-                scoreTitle: "বন্ধুদের স্কোর:",
-                btnHistorySmall: "ইতিহাস",
-                btnCreateNew: "নতুন কুইজ তৈরি করুন",
-                historyTitle: "কুইজ ইতিহাস",
-                btnBack: "← ফিরে যাও",
-                btnStartQuiz: "কুইজ শুরু করো",
-                btnResultCreate: "নিজের কুইজ তৈরি করুন 🚀",
-                settingsTitle: "সেটিংস",
-                btnReset: "সব তথ্য মুছুন (RESET)",
-                namePlaceholder: "আপনার নাম...",
-                friendPlaceholder: "তোমার নাম লেখো..."
-            },
-            en: {
-                welcomeTitle: "Create Quiz 🐼",
-                btnContinue: "Continue →",
-                btnHistory: "View My Previous Quizzes",
-                btnSkip: "Skip this question ➔",
-                btnAddCustom: "Add Your Own Question",
-                btnSave: "Save",
-                shareTitle: "Quiz Link is Ready!",
-                btnCopy: "Copy Link",
-                scoreTitle: "Friend Scores:",
-                btnHistorySmall: "History",
-                btnCreateNew: "Create New Quiz",
-                historyTitle: "Quiz History",
-                btnBack: "← Back",
-                btnStartQuiz: "Start Quiz",
-                btnResultCreate: "Create Your Own Quiz 🚀",
-                settingsTitle: "Settings",
-                btnReset: "Reset All Data",
-                namePlaceholder: "Enter your name...",
-                friendPlaceholder: "Enter friend's name..."
-            }
+            bn: { welcomeTitle: "কুইজ তৈরি করুন 🐼", btnContinue: "চালিয়ে যান →", btnHistory: "আমার আগের কুইজ ও ইতিহাস দেখুন", btnSkip: "এই প্রশ্নটি স্কিপ করুন ➔", btnAddCustom: "নিজের প্রশ্ন যোগ করুন", btnSave: "সেভ করুন", shareTitle: "কুইজ লিঙ্ক রেডি!", btnCopy: "কপি লিঙ্ক", scoreTitle: "বন্ধুদের স্কোর:", btnHistorySmall: "ইতিহাস", btnCreateNew: "নতুন কুইজ তৈরি করুন", historyTitle: "কুইজ ইতিহাস", btnBack: "← ফিরে যাও", btnStartQuiz: "কুইজ শুরু করো", btnResultCreate: "নিজের কুইজ তৈরি করুন 🚀", settingsTitle: "সেটিংস", btnReset: "সব তথ্য মুছুন", namePlaceholder: "আপনার নাম...", friendPlaceholder: "তোমার নাম লেখো..." },
+            en: { welcomeTitle: "Create Quiz 🐼", btnContinue: "Continue →", btnHistory: "View Quiz History", btnSkip: "Skip question ➔", btnAddCustom: "Add Custom Question", btnSave: "Save", shareTitle: "Link is Ready!", btnCopy: "Copy Link", scoreTitle: "Friend Scores:", btnHistorySmall: "History", btnCreateNew: "Create New", historyTitle: "Quiz History", btnBack: "← Back", btnStartQuiz: "Start Quiz", btnResultCreate: "Create Your Own 🚀", settingsTitle: "Settings", btnReset: "Reset All", namePlaceholder: "Your name...", friendPlaceholder: "Your name..." }
         };
 
         const pool = [
             { bn: "পছন্দের রং কি?", en: "Favorite Color?", o: { bn: ["সাদা", "কালো", "নীল", "লাল"], en: ["White", "Black", "Blue", "Red"] } },
             { bn: "সবচেয়ে প্রিয় খাবার?", en: "Favorite Food?", o: { bn: ["কাচ্চি", "বার্গার", "খিচুড়ি", "ফুচকা"], en: ["Kacchi", "Burger", "Khichuri", "Fuchka"] } },
-            { bn: "সবচেয়ে বেশি কোন অ্যাপ ব্যবহার করেন?", en: "Most used app?", o: { bn: ["Facebook", "YouTube", "TikTok", "WhatsApp"], en: ["FB", "YouTube", "TikTok", "WhatsApp"] } },
+            { bn: "বেশি কোন অ্যাপ ব্যবহার করেন?", en: "Most used app?", o: { bn: ["FB", "YouTube", "TikTok", "WhatsApp"], en: ["FB", "YouTube", "TikTok", "WhatsApp"] } },
+            { bn: "রাগ কেমন আপনার?", en: "Anger level?", o: { bn: ["প্রচণ্ড", "অল্প", "মাঝারি", "নেই"], en: ["High", "Low", "Medium", "None"] } },
+            { bn: "ভবিষ্যতে কি হতে চান?", en: "Future Goal?", o: { bn: ["বড়লোক", "সফল", "শান্তিতে থাকা", "জানি না"], en: ["Rich", "Successful", "Peaceful", "Don't Know"] } },
+            { bn: "কার সাথে বেশি কথা বলেন?", en: "Talk most with?", o: { bn: ["মা", "বন্ধু", "অন্য কেউ", "কারো সাথে না"], en: ["Mom", "Friend", "Someone", "Nobody"] } },
             { bn: "প্রিয় ঋতু কোনটি?", en: "Favorite Season?", o: { bn: ["শীত", "বর্ষা", "বসন্ত", "শরৎ"], en: ["Winter", "Rainy", "Spring", "Autumn"] } },
-            { bn: "টাকা নাকি ভালোবাসা?", en: "Money or Love?", o: { bn: ["টাকা", "ভালোবাসা", "দুইটাই", "কোনোটাই না"], en: ["Money", "Love", "Both", "None"] } }
-            // (More questions follow same structure...)
+            { bn: "সবচেয়ে বড় ভয় কি?", en: "Biggest Fear?", o: { bn: ["সাপ", "অন্ধকার", "পরীক্ষা", "মানুষ"], en: ["Snake", "Dark", "Exams", "People"] } },
+            { bn: "পাহাড় নাকি সমুদ্র?", en: "Mountain or Sea?", o: { bn: ["পাহাড়", "সমুদ্র", "দুইটাই", "কোনোটাই না"], en: ["Mountain", "Sea", "Both", "None"] } },
+            { bn: "চা নাকি কফি?", en: "Tea or Coffee?", o: { bn: ["দুধ চা", "রঙ চা", "কফি", "কিছু না"], en: ["Milk Tea", "Black Tea", "Coffee", "None"] } },
+            { bn: "টাকা নাকি ভালোবাসা?", en: "Money or Love?", o: { bn: ["টাকা", "ভালোবাসা", "দুইটাই", "কোনোটাই না"], en: ["Money", "Love", "Both", "None"] } },
+            { bn: "আপনার প্রিয় শখ কি?", en: "Your Hobby?", o: { bn: ["বই পড়া", "গেম খেলা", "ছবি তোলা", "গান শোনা"], en: ["Reading", "Gaming", "Photo", "Music"] } },
+            { bn: "সবচেয়ে প্রিয় ব্যক্তিত্ব?", en: "Favorite Person?", o: { bn: ["বাবা-মা", "শিক্ষক", "প্রিয় তারকা", "আমি নিজে"], en: ["Parents", "Teacher", "Star", "Myself"] } },
+            { bn: "মোবাইল ছাড়া কতক্ষণ থাকতে পারবেন?", en: "Without Mobile?", o: { bn: ["১ ঘণ্টা", "১ দিন", "কয়েক মিনিট", "অসম্ভব"], en: ["1 Hour", "1 Day", "Minutes", "Impossible"] } },
+            { bn: "প্রিয় খেলা কোনটি?", en: "Favorite Sport?", o: { bn: ["ক্রিকেট", "ফুটবল", "লুডু", "ক্যান্ডি ক্রাশ"], en: ["Cricket", "Football", "Ludo", "Candy Crush"] } },
+            { bn: "প্রথম দেখায় কি খেয়াল করেন?", en: "Notice first?", o: { bn: ["ব্যবহার", "লুক", "হাসি", "জুতা"], en: ["Behavior", "Look", "Smile", "Shoes"] } },
+            { bn: "রাত জাগেন কেন?", en: "Why late night?", o: { bn: ["ফোন টিপি", "চিন্তা করি", "কাজ করি", "ঘুম আসে না"], en: ["Phone", "Thinking", "Work", "Insomnia"] } },
+            { bn: "প্রেম করেছেন কখনো?", en: "Ever in Love?", o: { bn: ["হ্যাঁ", "না", "একতরফা", "বলবো না"], en: ["Yes", "No", "One Sided", "Private"] } },
+            { bn: "মানুষ হিসেবে আপনি কেমন?", en: "As a human?", o: { bn: ["খুব ভালো", "রাগী", "মিশুক", "অদ্ভুত"], en: ["Kind", "Angry", "Social", "Weird"] } },
+            { bn: "প্রিয় ড্রেস কি?", en: "Favorite Dress?", o: { bn: ["পাঞ্জাবি/শাড়ি", "টি-শার্ট", "ফরমাল", "যা পাই"], en: ["Traditional", "T-shirt", "Formal", "Anything"] } }
         ];
 
         let userProfile = JSON.parse(localStorage.getItem('myQuizProfile')) || { name: '', avatar: '🐼', answers: [], quizId: '' };
-        let currentLang = localStorage.getItem('lang') || 'bn';
         let activePool = [...pool].sort(() => Math.random() - 0.5);
+        let currentLang = localStorage.getItem('lang') || 'bn';
         let quizFromDB = null;
         let friendScore = 0;
         let friendQIdx = 0;
@@ -248,7 +227,6 @@
             currentLang = v;
             localStorage.setItem('lang', v);
             applyLanguage();
-            // কুইজ চলাকালীন হলে কুইজ রি-রেন্ডার করবে
             if(!document.getElementById('step2').classList.contains('hidden-section')) {
                 if(quizFromDB) renderFriendQuestion(); else renderCreatorQuestion();
             }
@@ -264,10 +242,9 @@
             document.getElementById('friendNameInput').placeholder = texts.friendPlaceholder;
         }
 
-        // --- Quiz Creation Logic ---
         function startQuizCreation() {
             userProfile.name = document.getElementById('userName').value;
-            if(!userProfile.name) return alert(currentLang === 'bn' ? "নাম দিন!" : "Enter name!");
+            if(!userProfile.name) return alert(currentLang === 'bn' ? "নাম দিন!" : "Name please!");
             showSection('step2');
             renderCreatorQuestion();
         }
@@ -275,8 +252,8 @@
         function renderCreatorQuestion() {
             if (userProfile.answers.length >= 10) return saveToCloud();
             document.getElementById('customQuestionArea').classList.add('hidden');
-            const q = activePool[0];
-            document.getElementById('qCount').innerText = currentLang === 'bn' ? `প্রশ্ন: ${userProfile.answers.length + 1}/10` : `Question: ${userProfile.answers.length + 1}/10`;
+            const q = activePool[0]; // পুলের প্রথমটি নিচ্ছি
+            document.getElementById('qCount').innerText = `${userProfile.answers.length + 1}/10`;
             document.getElementById('currentQuestion').innerText = q[currentLang];
             const grid = document.getElementById('optionsGrid');
             grid.innerHTML = '';
@@ -286,7 +263,7 @@
                 b.innerText = opt;
                 b.onclick = () => {
                     userProfile.answers.push({ q: {bn: q.bn, en: q.en}, a: i, o: q.o });
-                    activePool.shift();
+                    activePool.shift(); // উত্তর দেওয়া হলে পুল থেকে এটি সরিয়ে দিচ্ছি (রিপিটেশন ফিক্স)
                     renderCreatorQuestion();
                 };
                 grid.appendChild(b);
@@ -331,23 +308,40 @@
 
         async function loadUserHistoryUI() {
             const user = window.fbAuth.auth.currentUser;
-            if(!user) return alert(currentLang === 'bn' ? "লগইন করুন!" : "Please login!");
+            if(!user) return alert(currentLang === 'bn' ? "লগইন করুন!" : "Login first!");
             showSection('history');
             const q = window.fs.query(window.fs.collection(window.fs.db, "quizzes"), window.fs.where("creatorId", "==", user.uid));
             const snap = await window.fs.getDocs(q);
             const list = document.getElementById('historyList');
             list.innerHTML = '';
-            snap.forEach(doc => {
-                const d = doc.data();
+            snap.forEach(docSnap => {
+                const d = docSnap.data();
                 const div = document.createElement('div');
                 div.className = "history-item p-3 bg-white border rounded-lg flex justify-between items-center shadow-sm";
-                div.innerHTML = `<div><p class="font-bold text-sm text-gray-700">${d.creator}-এর কুইজ</p><p class="text-[10px] text-gray-400">${doc.id}</p></div><button class="bg-green-600 text-white px-3 py-1 rounded text-xs">Open</button>`;
-                div.onclick = () => { userProfile.quizId = doc.id; showSharePage(doc.id); };
+                div.innerHTML = `
+                    <div onclick="restoreQuiz('${docSnap.id}')" class="flex-grow">
+                        <p class="font-bold text-sm text-gray-700">${d.creator}-এর কুইজ</p>
+                        <p class="text-[10px] text-gray-400">ID: ${docSnap.id}</p>
+                    </div>
+                    <button onclick="deleteQuiz('${docSnap.id}')" class="text-red-500 p-2 hover:bg-red-50 rounded"><i class="fas fa-trash"></i></button>
+                `;
                 list.appendChild(div);
             });
         }
 
-        // --- Friend Mode Logic ---
+        window.restoreQuiz = (id) => { userProfile.quizId = id; showSharePage(id); };
+        window.deleteQuiz = async (id) => {
+            if(!confirm(currentLang === 'bn' ? "এই কুইজটি ডিলিট করতে চান?" : "Delete this quiz?")) return;
+            showSection('loader');
+            await window.fs.deleteDoc(window.fs.doc(window.fs.db, "quizzes", id));
+            if(userProfile.quizId === id) {
+                userProfile.quizId = "";
+                localStorage.setItem('myQuizProfile', JSON.stringify(userProfile));
+            }
+            loadUserHistoryUI();
+        };
+
+        // --- Friend Mode (Same as before but fixed logic) ---
         async function loadFriendMode(id) {
             showSection('loader');
             const snap = await window.fs.getDoc(window.fs.doc(window.fs.db, "quizzes", id));
@@ -378,7 +372,7 @@
             }, 1000);
 
             const qD = quizFromDB.answers[friendQIdx];
-            document.getElementById('qCount').innerText = currentLang === 'bn' ? `প্রশ্ন: ${friendQIdx + 1}/10` : `Question: ${friendQIdx + 1}/10`;
+            document.getElementById('qCount').innerText = `Q: ${friendQIdx + 1}/10`;
             document.getElementById('currentQuestion').innerText = qD.q[currentLang];
             const grid = document.getElementById('optionsGrid');
             grid.innerHTML = '';
@@ -418,7 +412,7 @@
             if(friendScore >= 7) confetti({ particleCount: 150 });
         }
 
-        // --- Core Functions ---
+        // --- Core ---
         function handleAuth() {
             if (window.fbAuth.auth.currentUser) window.fbAuth.signOut(window.fbAuth.auth).then(() => location.reload());
             else window.fbAuth.signInWithPopup(window.fbAuth.auth, window.fbAuth.provider).then(() => location.reload());
@@ -427,18 +421,12 @@
         function showSection(id) { document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section')); document.getElementById(id).classList.remove('hidden-section'); }
         function selectAvatar(el, icon) { document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('avatar-selected')); el.classList.add('avatar-selected'); userProfile.avatar = icon; }
         function copyLink() { navigator.clipboard.writeText(document.getElementById('shareLink').value); alert("Link Copied!"); }
-        function resetAllData() { if(confirm("Confirm Reset?")) createNewQuiz(); }
+        function resetAllData() { if(confirm("Confirm?")) createNewQuiz(); }
         
         function shareSocial(p) {
             const url = encodeURIComponent(document.getElementById('shareLink').value);
             const txt = encodeURIComponent(currentLang === 'bn' ? "আমার বন্ধুত্ব কুইজটি খেলো!" : "Play my friendship quiz!");
-            const links = {
-                whatsapp: `https://wa.me/?text=${txt}%20${url}`,
-                facebook: `https://facebook.com/sharer/sharer.php?u=${url}`,
-                messenger: `fb-messenger://share?link=${url}`,
-                instagram: `https://instagram.com`,
-                imo: `imo://share?url=${url}`
-            };
+            const links = { whatsapp: `https://wa.me/?text=${txt}%20${url}`, facebook: `https://facebook.com/sharer/sharer.php?u=${url}`, messenger: `fb-messenger://share?link=${url}`, instagram: `https://instagram.com`, imo: `imo://share?url=${url}` };
             if(links[p]) window.open(links[p], '_blank');
         }
     </script>
