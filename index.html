@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Friendship Quiz - Pro Fix</title>
+    <title>Friendship Quiz - Ultra Max</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #f0fdf4; }
+        body { font-family: 'Poppins', sans-serif; background-color: #f0fdf4; overflow-x: hidden; }
         .card { border-radius: 1.5rem; transition: 0.3s; }
         .btn-green { background-color: #28a745; color: white; transition: 0.2s; }
         .hidden-section { display: none; }
         .avatar-selected { border: 4px solid #28a745; background-color: #dcfce7; }
+        .timer-bar { height: 4px; background: #28a745; width: 100%; transition: width 1s linear; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .animate-fade { animation: fadeIn 0.5s ease-in; }
     </style>
@@ -21,7 +23,7 @@
 
     <div class="w-full max-w-md flex justify-between mb-4 items-center">
         <button onclick="showSection('settings')" class="p-2 bg-white rounded-full shadow text-gray-600"><i class="fas fa-cog"></i></button>
-        <select id="langSwitcher" onchange="changeLanguage(this.value)" class="bg-white border border-gray-300 py-1 px-3 rounded-lg shadow-sm outline-none">
+        <select id="langSwitcher" onchange="changeLanguage(this.value)" class="bg-white border py-1 px-3 rounded-lg shadow-sm">
             <option value="bn">বাংলা</option>
             <option value="en">English</option>
         </select>
@@ -32,14 +34,14 @@
         <section id="tutorial">
             <div id="tutorialContent" class="text-center"></div>
             <div class="flex justify-between mt-8">
-                <button id="skipTutorial" onclick="showSection('step1')" class="text-gray-400 font-semibold">Skip</button>
+                <button onclick="showSection('step1')" class="text-gray-400 font-semibold">Skip</button>
                 <button id="nextTutorial" onclick="nextTutorialStep()" class="btn-green px-6 py-2 rounded-xl font-bold">Next</button>
             </div>
         </section>
 
         <section id="step1" class="hidden-section">
             <h1 id="txtWelcome" class="text-2xl font-bold text-center text-green-700 mb-2"></h1>
-            <input type="text" id="userName" class="w-full p-3 border rounded-xl mb-4 outline-none focus:ring-2 focus:ring-green-500" placeholder="নাম...">
+            <input type="text" id="userName" class="w-full p-3 border rounded-xl mb-4 outline-none focus:ring-2 focus:ring-green-500" placeholder="আপনার নাম...">
             <div class="grid grid-cols-3 gap-4 mb-8">
                 <div class="avatar-option p-2 text-center cursor-pointer border-4 border-transparent rounded-xl" onclick="selectAvatar(this)">
                     <div class="text-4xl">🐼</div><span class="text-xs font-bold">Male</span>
@@ -55,9 +57,11 @@
         </section>
 
         <section id="step2" class="hidden-section">
-            <div class="flex justify-between items-center mb-4">
-                <span id="qCount" class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold"></span>
+            <div class="flex justify-between items-center mb-2">
+                <span id="qCount" class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold"></span>
+                <span id="timerText" class="text-xs font-bold text-red-500"></span>
             </div>
+            <div id="timerBarParent" class="w-full bg-gray-100 h-1 mb-4 hidden"><div id="qTimerBar" class="timer-bar"></div></div>
             <h2 id="currentQuestion" class="text-xl font-bold text-center mb-6"></h2>
             <div id="optionsGrid" class="grid grid-cols-1 gap-3"></div>
             <button id="btnSkip" onclick="skipQuestion()" class="w-full mt-6 text-orange-500 font-semibold"></button>
@@ -65,28 +69,58 @@
 
         <section id="step3" class="hidden-section text-center">
             <div class="text-6xl mb-4">🎉</div>
-            <h2 id="txtReady" class="text-2xl font-bold mb-4"></h2>
+            <h2 class="text-2xl font-bold mb-4">কুইজ রেডি!</h2>
             <input type="text" id="shareLink" readonly class="w-full p-3 bg-gray-50 border border-dashed border-green-400 rounded-lg mb-4 text-center">
             <div class="flex justify-center gap-6 mb-6">
                 <button onclick="shareSocial('whatsapp')" class="text-green-500 text-4xl"><i class="fab fa-whatsapp"></i></button>
                 <button onclick="shareSocial('facebook')" class="text-blue-700 text-4xl"><i class="fab fa-facebook"></i></button>
             </div>
-            <button id="btnCopy" onclick="copyLink()" class="w-full btn-green py-4 rounded-xl font-bold mb-4"></button>
-            <div id="leaderboard" class="text-left border-t pt-4">
-                <h3 id="txtLeaderboard" class="font-bold mb-2"></h3>
+            <button onclick="copyLink()" class="w-full btn-green py-4 rounded-xl font-bold mb-4">লিঙ্ক কপি করুন</button>
+            <div class="text-left border-t pt-4">
+                <h3 class="font-bold mb-2">বন্ধুদের স্কোর:</h3>
                 <div id="leaderboardEntries" class="space-y-2"></div>
             </div>
         </section>
 
+        <section id="step4" class="hidden-section text-center">
+            <div id="friendAvatarDisp" class="text-7xl mb-4">🐼</div>
+            <h2 id="friendWelcomeTxt" class="text-2xl font-bold mb-4 text-green-700"></h2>
+            <input type="text" id="friendNameInput" class="w-full p-3 border rounded-xl mb-4 outline-none" placeholder="তোমার নাম লেখো...">
+            <button onclick="startFriendQuiz()" class="w-full btn-green py-4 rounded-xl font-bold">কুইজ শুরু করো</button>
+        </section>
+
+        <section id="step5" class="hidden-section text-center">
+            <div id="rankIcon" class="text-7xl mb-2">🏆</div>
+            <h2 id="rankTitle" class="text-2xl font-bold text-green-700 mb-1"></h2>
+            <p id="rankDesc" class="text-gray-500 text-sm mb-4"></p>
+            <div id="finalScore" class="text-6xl font-bold text-green-600 mb-6">0/10</div>
+            <button onclick="location.href=location.pathname" class="w-full btn-green py-4 rounded-xl font-bold mb-3">নিজের কুইজ তৈরি করুন 🚀</button>
+        </section>
+
         <section id="settings" class="hidden-section">
-            <h2 id="txtSettings" class="text-xl font-bold mb-6 text-center"></h2>
-            <button id="btnReset" onclick="resetAllData()" class="w-full bg-red-500 text-white py-3 rounded-xl mb-6 font-bold">RESET ALL DATA</button>
-            <div class="bg-gray-50 p-4 rounded-xl">
-                <h3 id="txtDevInfo" class="font-bold mb-2"></h3>
-                <p class="text-sm font-semibold">1. Muhammed Omor</p>
-                <p class="text-sm font-semibold">2. Rafiul Hasan Rafin</p>
+            <h2 class="text-xl font-bold mb-6 text-center">সেটিংস</h2>
+            <button onclick="resetAllData()" class="w-full bg-red-500 text-white py-3 rounded-xl mb-6 font-bold uppercase tracking-wider">Reset All Data</button>
+            
+            <div class="bg-gray-50 p-5 rounded-2xl border border-gray-200">
+                <h3 class="font-bold text-gray-700 mb-4 border-b pb-2 flex items-center gap-2">
+                    <i class="fas fa-code text-green-600"></i> Developers
+                </h3>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center bg-white p-3 rounded-xl shadow-sm">
+                        <span class="font-semibold text-gray-800">Muhammed Omor</span>
+                        <a href="https://www.facebook.com/muhammedomor.fb" target="_blank" class="text-blue-600 text-xl hover:scale-110 transition">
+                            <i class="fab fa-facebook"></i>
+                        </a>
+                    </div>
+                    <div class="flex justify-between items-center bg-white p-3 rounded-xl shadow-sm">
+                        <span class="font-semibold text-gray-800">Rafiul Hasan Rafin</span>
+                        <a href="https://www.instagram.com/its_rafiul_hasan?igsh=dmRpMWpkN3I1emRl" target="_blank" class="text-pink-600 text-xl hover:scale-110 transition">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
             </div>
-            <button id="btnBack" onclick="goBack()" class="w-full mt-6 text-green-600 font-bold">BACK</button>
+            <button onclick="goBack()" class="w-full mt-8 text-green-600 font-bold hover:underline">← ফিরে যাও</button>
         </section>
 
     </main>
@@ -106,117 +140,140 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         window.fs = { db, doc, setDoc, updateDoc, arrayUnion, onSnapshot, getDoc };
-        
-        // এবার লজিক শুরু
-        initApp();
+        init();
     </script>
 
     <script>
-        const uiText = {
-            bn: {
-                welcome: "কুইজ তৈরি করো! 🐼", nameLabel: "তোমার নাম:", avatarLabel: "অ্যাভাটার বেছে নাও:", continue: "চালিয়ে যাও →",
-                skip: "স্কিপ করো ➔", ready: "কুইজ রেডি!", copy: "লিঙ্ক কপি করো", settings: "সেটিংস", reset: "রিসেট অল ডাটা",
-                dev: "ডেভলপার ইনফর্মেশন:", back: "ফিরে যাও", qPrefix: "প্রশ্ন", lb: "লিডারবোর্ড",
-                tut: [
-                    { t: "স্বাগতম! 👋", d: "প্রথমে নাম ও অ্যাভাটার সেট করুন।" },
-                    { t: "১০টি উত্তর দিন 📝", d: "আপনার সম্পর্কে ১০টি প্রশ্নের উত্তর দিন।" },
-                    { t: "শেয়ার করুন 🚀", d: "লিঙ্কটি বন্ধুদের পাঠিয়ে মজা দেখুন!" }
-                ]
-            },
-            en: {
-                welcome: "Create Quiz! 🐼", nameLabel: "Your Name:", avatarLabel: "Select Avatar:", continue: "Continue →",
-                skip: "Skip ➔", ready: "Quiz is Ready!", copy: "Copy Link", settings: "Settings", reset: "Reset Data",
-                dev: "Developer Info:", back: "Go Back", qPrefix: "Question", lb: "Leaderboard",
-                tut: [
-                    { t: "Welcome! 👋", d: "Set your name and avatar first." },
-                    { t: "Answer 10 Qs 📝", d: "Answer 10 questions about yourself." },
-                    { t: "Share Link 🚀", d: "Share link and see who knows you best!" }
-                ]
-            }
-        };
-
         const questionsPool = [
             { bn: "পছন্দের রং কি?", en: "Favorite Color?", o: { bn: ["সাদা", "কালো", "নীল", "লাল"], en: ["White", "Black", "Blue", "Red"] } },
-            { bn: "রাগ কেমন?", en: "How's your anger?", o: { bn: ["বেশি", "কম", "মাঝারি", "নেই"], en: ["High", "Low", "Medium", "None"] } },
+            { bn: "রাগ কেমন?", en: "Anger level?", o: { bn: ["প্রচণ্ড", "অল্প", "মাঝারি", "নেই"], en: ["High", "Low", "Medium", "None"] } },
             { bn: "প্রিয় খাবার?", en: "Favorite Food?", o: { bn: ["কাচ্চি", "বার্গার", "খিচুড়ি", "ফুচকা"], en: ["Kacchi", "Burger", "Khichuri", "Fuchka"] } },
             { bn: "চা নাকি কফি?", en: "Tea or Coffee?", o: { bn: ["দুধ চা", "রঙ চা", "কফি", "কিছু না"], en: ["Milk Tea", "Black Tea", "Coffee", "None"] } },
             { bn: "ঘুরতে যাওয়ার জায়গা?", en: "Dream Trip?", o: { bn: ["পাহাড়", "সমুদ্র", "জঙ্গল", "বাসা"], en: ["Mountain", "Sea", "Jungle", "Home"] } },
+            { bn: "বেশি ব্যবহার করো কি?", en: "Most used app?", o: { bn: ["FB", "YouTube", "Insta", "WhatsApp"], en: ["FB", "YouTube", "Insta", "WhatsApp"] } },
+            { bn: "প্রিয় ঋতু কি?", en: "Favorite Season?", o: { bn: ["শীত", "বর্ষা", "বসন্ত", "শরৎ"], en: ["Winter", "Rainy", "Spring", "Autumn"] } },
             { bn: "হবি কি?", en: "Hobby?", o: { bn: ["বই পড়া", "খেলা", "ছবি তোলা", "গান"], en: ["Reading", "Sports", "Photo", "Music"] } },
-            { bn: "প্রিয় ঋতু?", en: "Favorite Season?", o: { bn: ["শীত", "বর্ষা", "বসন্ত", "শরৎ"], en: ["Winter", "Rainy", "Spring", "Autumn"] } },
-            { bn: "বেশি কথা বলো?", en: "Talkative?", o: { bn: ["হ্যাঁ", "শান্ত", "মাঝারি", "জানি না"], en: ["Yes", "Quiet", "Normal", "Not sure"] } },
-            { bn: "সকালে ওঠো?", en: "Early Bird?", o: { bn: ["৫টায়", "৮টায়", "১০টায়", "দুপুরে"], en: ["5 AM", "8 AM", "10 AM", "Noon"] } },
             { bn: "ভয় পাও কি?", en: "Afraid of?", o: { bn: ["অন্ধকার", "সাপ", "পরীক্ষা", "মানুষ"], en: ["Dark", "Snake", "Exams", "People"] } },
-            // আরও ২০টি প্রশ্ন এখানে একইভাবে যোগ করা সম্ভব
+            { bn: "জীবনের লক্ষ্য?", en: "Life Goal?", o: { bn: ["টাকা", "মানুষের সেবা", "দেশ ঘোরা", "শান্তি"], en: ["Money", "Service", "Travel", "Peace"] } }
         ];
 
         let currentLang = localStorage.getItem('lang') || 'bn';
-        let tutStep = 0;
-        let userProfile = JSON.parse(localStorage.getItem('myQuizProfile')) || { name: '', avatar: '', answers: [], quizId: '' };
+        let userProfile = JSON.parse(localStorage.getItem('myQuizProfile')) || { name: '', avatar: '🐼', answers: [], quizId: '' };
         let activePool = [...questionsPool].sort(() => Math.random() - 0.5);
+        let quizFromDB = null;
+        let friendScore = 0;
+        let friendQIdx = 0;
+        let tutStep = 0;
+        let timerInterval;
 
-        function initApp() {
-            document.getElementById('langSwitcher').value = currentLang;
-            updateUI();
-            
+        function init() {
             const params = new URLSearchParams(window.location.search);
             const qId = params.get('id');
+            if (qId) loadFriendMode(qId);
+            else if (userProfile.quizId) showSharePage(userProfile.quizId);
+            else { showSection('tutorial'); renderTutorial(); }
+        }
 
-            if (qId) {
-                loadFriendMode(qId);
-            } else if (userProfile.quizId) {
-                goToSharePage(userProfile.quizId);
-            } else {
-                showSection('tutorial');
-                showTutorial();
+        async function loadFriendMode(id) {
+            const check = setInterval(async () => {
+                if (window.fs) {
+                    clearInterval(check);
+                    const snap = await window.fs.getDoc(window.fs.doc(window.fs.db, "quizzes", id));
+                    if (snap.exists()) {
+                        quizFromDB = snap.data();
+                        showSection('step4');
+                        document.getElementById('friendAvatarDisp').innerText = quizFromDB.avatar;
+                        document.getElementById('friendWelcomeTxt').innerText = `${quizFromDB.creator} সম্পর্কে তুমি কতটুকু জানো?`;
+                    }
+                }
+            }, 500);
+        }
+
+        function startFriendQuiz() {
+            if(!document.getElementById('friendNameInput').value) return alert("নাম লেখো!");
+            showSection('step2');
+            document.getElementById('btnSkip').style.display = 'none';
+            document.getElementById('timerBarParent').classList.remove('hidden');
+            renderFriendQuestion();
+        }
+
+        function renderFriendQuestion() {
+            clearInterval(timerInterval);
+            let timeLeft = 15;
+            const bar = document.getElementById('qTimerBar');
+            bar.style.width = '100%';
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                bar.style.width = (timeLeft / 15 * 100) + '%';
+                if(timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    handleAnswer(-1);
+                }
+            }, 1000);
+
+            const qData = quizFromDB.answers[friendQIdx];
+            document.getElementById('qCount').innerText = `Question ${friendQIdx + 1}/10`;
+            document.getElementById('currentQuestion').innerText = `${quizFromDB.creator}-এর ${qData[currentLang]}`;
+            
+            const grid = document.getElementById('optionsGrid');
+            grid.innerHTML = '';
+            const originalQ = questionsPool.find(q => q.en === qData.en);
+            originalQ.o[currentLang].forEach((opt, i) => {
+                const b = document.createElement('button');
+                b.className = "w-full p-4 border rounded-xl hover:bg-green-50 text-left font-medium transition active:scale-95";
+                b.innerText = opt;
+                b.onclick = () => handleAnswer(i);
+                grid.appendChild(b);
+            });
+        }
+
+        function handleAnswer(index) {
+            clearInterval(timerInterval);
+            if (index === quizFromDB.answers[friendQIdx].a) friendScore++;
+            friendQIdx++;
+            if (friendQIdx < 10) renderFriendQuestion();
+            else finishFriendQuiz();
+        }
+
+        async function finishFriendQuiz() {
+            const qId = new URLSearchParams(window.location.search).get('id');
+            const name = document.getElementById('friendNameInput').value;
+            await window.fs.updateDoc(window.fs.doc(window.fs.db, "quizzes", qId), {
+                results: window.fs.arrayUnion({ name: name, score: friendScore })
+            });
+            
+            showSection('step5');
+            document.getElementById('finalScore').innerText = `${friendScore}/10`;
+            
+            const rankData = [
+                {t: "তুমি কি ওনাকে চেনো?", d: "আপনারা কি নতুন পরিচিত?", i: "❓", min: 0},
+                {t: "সাধারণ বন্ধু", d: "সম্পর্ক আরও গভীর করা দরকার!", i: "🤝", min: 4},
+                {t: "অন্তরঙ্গ বন্ধু", d: "আপনি ওনাকে বেশ ভালো চেনেন!", i: "💖", min: 7},
+                {t: "বেস্ট ফ্রেন্ড!", d: "আপনারা একে অপরের আত্মা!", i: "🏆", min: 10}
+            ];
+            const rank = rankData.reverse().find(r => friendScore >= r.min);
+            document.getElementById('rankTitle').innerText = rank.t;
+            document.getElementById('rankDesc').innerText = rank.d;
+            document.getElementById('rankIcon').innerText = rank.i;
+
+            if(friendScore >= 7) {
+                confetti({ transition: 2, particleCount: 150, spread: 70, origin: { y: 0.6 } });
             }
         }
 
-        function updateUI() {
-            const t = uiText[currentLang];
-            document.getElementById('txtWelcome').innerText = t.welcome;
-            document.getElementById('btnContinue').innerText = t.continue;
-            document.getElementById('btnSkip').innerText = t.skip;
-            document.getElementById('txtReady').innerText = t.ready;
-            document.getElementById('btnCopy').innerText = t.copy;
-            document.getElementById('txtSettings').innerText = t.settings;
-            document.getElementById('txtDevInfo').innerText = t.dev;
-            document.getElementById('txtLeaderboard').innerText = t.lb;
-        }
-
-        function showTutorial() {
-            const step = uiText[currentLang].tut[tutStep];
-            document.getElementById('tutorialContent').innerHTML = `
-                <h2 class="text-2xl font-bold text-green-700 mb-4">${step.t}</h2>
-                <p class="text-gray-600">${step.d}</p>
-            `;
-            document.getElementById('nextTutorial').innerText = tutStep === 2 ? (currentLang === 'bn' ? 'শুরু করি' : 'Start') : 'Next';
-        }
-
-        function nextTutorialStep() {
-            if (tutStep < 2) { tutStep++; showTutorial(); }
-            else { showSection('step1'); }
-        }
-
-        function selectAvatar(el) {
-            document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('avatar-selected'));
-            el.classList.add('avatar-selected');
-            userProfile.avatar = el.querySelector('.text-4xl').innerText;
-        }
-
+        // --- Creator Logic ---
         function startQuizCreation() {
             userProfile.name = document.getElementById('userName').value;
-            if(!userProfile.name || !userProfile.avatar) return alert("তথ্য দিন!");
+            if(!userProfile.name) return alert("নাম দিন!");
             showSection('step2');
-            renderQuestion();
+            renderCreatorQuestion();
         }
 
-        function renderQuestion() {
-            if (userProfile.answers.length >= 10) {
-                saveAndFinish();
-                return;
-            }
+        function renderCreatorQuestion() {
+            if (userProfile.answers.length >= 10) return saveToDB();
             const q = activePool[0];
-            document.getElementById('qCount').innerText = `${uiText[currentLang].qPrefix} ${userProfile.answers.length + 1}/10`;
+            document.getElementById('qCount').innerText = `পছন্দ করুন: ${userProfile.answers.length + 1}/10`;
             document.getElementById('currentQuestion').innerText = q[currentLang];
             const grid = document.getElementById('optionsGrid');
             grid.innerHTML = '';
@@ -225,79 +282,61 @@
                 b.className = "w-full p-4 border rounded-xl hover:bg-green-50 text-left font-medium";
                 b.innerText = opt;
                 b.onclick = () => {
-                    userProfile.answers.push({ q: q.en, a: i });
+                    userProfile.answers.push({ bn: q.bn, en: q.en, a: i });
                     activePool.shift();
-                    renderQuestion();
+                    renderCreatorQuestion();
                 };
                 grid.appendChild(b);
             });
         }
 
-        function skipQuestion() {
-            if(activePool.length > 1) { activePool.shift(); renderQuestion(); }
-        }
-
-        async function saveAndFinish() {
-            const qId = "q_" + Date.now();
-            userProfile.quizId = qId;
+        async function saveToDB() {
+            const id = "q_" + Date.now();
+            userProfile.quizId = id;
             localStorage.setItem('myQuizProfile', JSON.stringify(userProfile));
-            
-            try {
-                await window.fs.setDoc(window.fs.doc(window.fs.db, "quizzes", qId), {
-                    creator: userProfile.name,
-                    avatar: userProfile.avatar,
-                    answers: userProfile.answers,
-                    results: []
-                });
-                goToSharePage(qId);
-            } catch(e) { alert("Error saving data!"); }
+            await window.fs.setDoc(window.fs.doc(window.fs.db, "quizzes", id), {
+                creator: userProfile.name, avatar: userProfile.avatar, answers: userProfile.answers, results: []
+            });
+            showSharePage(id);
         }
 
-        function goToSharePage(id) {
+        function showSharePage(id) {
             showSection('step3');
             document.getElementById('shareLink').value = `${window.location.origin}${window.location.pathname}?id=${id}`;
-            listenResults(id);
-        }
-
-        function listenResults(id) {
             window.fs.onSnapshot(window.fs.doc(window.fs.db, "quizzes", id), (snap) => {
                 const data = snap.data();
-                const container = document.getElementById('leaderboardEntries');
-                container.innerHTML = data.results.map(r => `
-                    <div class="flex justify-between bg-gray-50 p-2 rounded">
-                        <span>${r.name}</span><b>${r.score}/10</b>
+                document.getElementById('leaderboardEntries').innerHTML = data.results.map(r => `
+                    <div class="flex justify-between bg-gray-50 p-3 rounded-xl border border-gray-100">
+                        <span class="font-medium">${r.name}</span>
+                        <span class="font-bold text-green-600">${r.score}/10</span>
                     </div>
                 `).join('');
             });
         }
 
-        function shareSocial(p) {
-            const url = encodeURIComponent(document.getElementById('shareLink').value);
-            const link = p === 'whatsapp' ? `https://wa.me/?text=${url}` : `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-            window.open(link, '_blank');
+        function renderTutorial() {
+            const tuts = [
+                { t: "স্বাগতম! 👋", d: "নিজে ১০টি প্রশ্নের উত্তর দিয়ে একটি কুইজ লিংক তৈরি করুন।" },
+                { t: "বন্ধুদের চ্যালেঞ্জ দিন! 🚀", d: "আপনার লিংকটি শেয়ার করুন এবং দেখুন কে আপনাকে বেশি চেনে।" },
+                { t: "লিডারবোর্ড দেখুন 🏆", d: "বন্ধুরা কুইজ শেষ করলেই আপনি এখানে তাদের স্কোর দেখতে পাবেন।" }
+            ];
+            document.getElementById('tutorialContent').innerHTML = `<h2 class="text-2xl font-bold mb-2 text-green-700">${tuts[tutStep].t}</h2><p class="text-gray-600">${tuts[tutStep].d}</p>`;
+            document.getElementById('nextTutorial').innerText = tutStep === 2 ? "শুরু করি" : "পরের ধাপ";
         }
-
-        function copyLink() {
-            navigator.clipboard.writeText(document.getElementById('shareLink').value);
-            alert("Copied!");
+        function nextTutorialStep() { if(tutStep < 2) { tutStep++; renderTutorial(); } else showSection('step1'); }
+        function selectAvatar(el) { 
+            document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('avatar-selected'));
+            el.classList.add('avatar-selected');
+            userProfile.avatar = el.querySelector('.text-4xl').innerText;
         }
-
-        function resetAllData() {
-            if(confirm("সব মুছবেন?")) { localStorage.clear(); location.href = location.pathname; }
-        }
-
         function showSection(id) {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section'));
             document.getElementById(id).classList.remove('hidden-section');
         }
-
+        function copyLink() { navigator.clipboard.writeText(document.getElementById('shareLink').value); alert("Link Copied!"); }
+        function resetAllData() { if(confirm("Are you sure?")) { localStorage.clear(); location.href = location.pathname; } }
         function goBack() { showSection(userProfile.quizId ? 'step3' : 'step1'); }
-        
-        function changeLanguage(val) {
-            currentLang = val;
-            localStorage.setItem('lang', val);
-            location.reload();
-        }
+        function changeLanguage(v) { localStorage.setItem('lang', v); location.reload(); }
     </script>
 </body>
 </html>
