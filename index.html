@@ -143,6 +143,10 @@
                 <p class="font-bold text-green-700 mb-2 underline">Developers</p>
                 <p>Muhammed Omor <a href="https://facebook.com/muhammedomor.fb" target="_blank" class="text-blue-500 ml-1"><i class="fab fa-facebook"></i></a></p>
                 <p class="mt-2">Rafiul Hasan Rafin <a href="https://instagram.com/its_rafiul_hasan" target="_blank" class="text-pink-500 ml-1"><i class="fab fa-instagram"></i></a></p>
+                <hr class="my-4">
+                <p data-lang="disclaimerText" class="text-red-500 font-medium leading-relaxed">
+                    ⚠️ বিশেষ সতর্কবার্তা: এই ওয়েবসাইটটি শুধুমাত্র বিনোদন ও মজার উদ্দেশ্যে তৈরি করা হয়েছে। ফলাফলটি কেউ সিরিয়াসলি নিবেন না। এটি মূলত বন্ধুদের সাথে আনন্দ ভাগাভাগি করার একটি মাধ্যম মাত্র। ❤️
+                </p>
             </div>
             <button onclick="showSection('step1')" data-lang="btnBack" class="w-full mt-8 text-green-600 font-bold">← ফিরে যাও</button>
         </section>
@@ -184,8 +188,50 @@
 
     <script>
         const langDict = {
-            bn: { welcomeTitle: "কুইজ তৈরি করুন 🐼", btnContinue: "চালিয়ে যান →", btnHistory: "আমার আগের কুইজ ও ইতিহাস দেখুন", btnSkip: "এই প্রশ্নটি স্কিপ করুন ➔", btnAddCustom: "নিজের প্রশ্ন যোগ করুন", btnSave: "সেভ করুন", shareTitle: "কুইজ লিঙ্ক রেডি!", btnCopy: "কপি লিঙ্ক", scoreTitle: "বন্ধুদের স্কোর:", btnHistorySmall: "ইতিহাস", btnCreateNew: "নতুন কুইজ তৈরি করুন", historyTitle: "কুইজ ইতিহাস", btnBack: "← ফিরে যাও", btnStartQuiz: "কুইজ শুরু করো", btnResultCreate: "নিজের কুইজ তৈরি করুন 🚀", settingsTitle: "সেটিংস", btnReset: "সব তথ্য মুছুন", namePlaceholder: "আপনার নাম...", friendPlaceholder: "তোমার নাম লেখো..." },
-            en: { welcomeTitle: "Create Quiz 🐼", btnContinue: "Continue →", btnHistory: "View Quiz History", btnSkip: "Skip question ➔", btnAddCustom: "Add Custom Question", btnSave: "Save", shareTitle: "Link is Ready!", btnCopy: "Copy Link", scoreTitle: "Friend Scores:", btnHistorySmall: "History", btnCreateNew: "Create New", historyTitle: "Quiz History", btnBack: "← Back", btnStartQuiz: "Start Quiz", btnResultCreate: "Create Your Own 🚀", settingsTitle: "Settings", btnReset: "Reset All", namePlaceholder: "Your name...", friendPlaceholder: "Your name..." }
+            bn: { 
+                welcomeTitle: "কুইজ তৈরি করুন 🐼", 
+                btnContinue: "চালিয়ে যান →", 
+                btnHistory: "আমার আগের কুইজ ও ইতিহাস দেখুন", 
+                btnSkip: "এই প্রশ্নটি স্কিপ করুন ➔", 
+                btnAddCustom: "নিজের প্রশ্ন যোগ করুন", 
+                btnSave: "সেভ করুন", 
+                shareTitle: "কুইজ লিঙ্ক রেডি!", 
+                btnCopy: "কপি লিঙ্ক", 
+                scoreTitle: "বন্ধুদের স্কোর:", 
+                btnHistorySmall: "ইতিহাস", 
+                btnCreateNew: "নতুন কুইজ তৈরি করুন", 
+                historyTitle: "কুইজ ইতিহাস", 
+                btnBack: "← ফিরে যাও", 
+                btnStartQuiz: "কুইজ শুরু করো", 
+                btnResultCreate: "নিজের কুইজ তৈরি করুন 🚀", 
+                settingsTitle: "সেটিংস", 
+                btnReset: "সব তথ্য মুছুন", 
+                namePlaceholder: "আপনার নাম...", 
+                friendPlaceholder: "তোমার নাম লেখো...",
+                disclaimerText: "⚠️ বিশেষ সতর্কবার্তা: এই ওয়েবসাইটটি শুধুমাত্র বিনোদন ও মজার উদ্দেশ্যে তৈরি করা হয়েছে। ফলাফলটি কেউ সিরিয়াসলি নিবেন না। এটি মূলত বন্ধুদের সাথে আনন্দ ভাগাভাগি করার একটি মাধ্যম মাত্র। ❤️"
+            },
+            en: { 
+                welcomeTitle: "Create Quiz 🐼", 
+                btnContinue: "Continue →", 
+                btnHistory: "View Quiz History", 
+                btnSkip: "Skip question ➔", 
+                btnAddCustom: "Add Custom Question", 
+                btnSave: "Save", 
+                shareTitle: "Link is Ready!", 
+                btnCopy: "Copy Link", 
+                scoreTitle: "Friend Scores:", 
+                btnHistorySmall: "History", 
+                btnCreateNew: "Create New", 
+                historyTitle: "Quiz History", 
+                btnBack: "← Back", 
+                btnStartQuiz: "Start Quiz", 
+                btnResultCreate: "Create Your Own 🚀", 
+                settingsTitle: "Settings", 
+                btnReset: "Reset All", 
+                namePlaceholder: "Your name...", 
+                friendPlaceholder: "Your name...",
+                disclaimerText: "⚠️ Special Disclaimer: This website is created for entertainment and fun purposes only. Do not take the results seriously. It is simply a medium to share joy with friends. ❤️"
+            }
         };
 
         const rawPool = [
@@ -263,7 +309,6 @@
             const q = activePool[0];
             document.getElementById('qCount').innerText = `${userProfile.answers.length + 1}/10`;
             
-            // "undefined" ফিক্স করার জন্য ডিরেক্ট চেক এবং ফলব্যাক
             document.getElementById('currentQuestion').innerText = q[currentLang] || q.bn || "প্রশ্ন লোড হচ্ছে...";
             
             const grid = document.getElementById('optionsGrid');
@@ -382,7 +427,6 @@
             const qD = quizFromDB.answers[friendQIdx];
             document.getElementById('qCount').innerText = `Q: ${friendQIdx + 1}/10`;
             
-            // বন্ধু মোডেও "undefined" সমস্যা দূর করার জন্য সেফ চেক
             document.getElementById('currentQuestion').innerText = (qD.q && qD.q[currentLang]) ? qD.q[currentLang] : (qD.q ? qD.q.bn : "প্রশ্ন খুঁজে পাওয়া যায়নি");
             
             const grid = document.getElementById('optionsGrid');
