@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Friendship Quiz - Cloud History V4</title>
+    <title>Friendship Quiz - Professional Multi-Lang V6</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #f0fdf4; }
+        body { font-family: 'Poppins', sans-serif; background-color: #f0fdf4; transition: 0.3s; }
         .card { border-radius: 1.5rem; transition: 0.3s; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
         .btn-green { background-color: #28a745; color: white; min-height: 55px; }
         .hidden-section { display: none !important; }
@@ -17,16 +17,15 @@
         .wrong-ans { background-color: #ef4444 !important; color: white !important; border-color: #dc2626 !important; }
         .avatar-selected { border: 4px solid #28a745; background-color: #dcfce7; transform: scale(1.05); }
         .timer-bar { height: 4px; background: #28a745; width: 100%; transition: width 1s linear; }
-        .history-item { cursor: pointer; transition: 0.2s; }
-        .history-item:hover { background-color: #f0fdf4; border-color: #22c55e; }
+        .history-item { cursor: pointer; border-left: 5px solid #28a745; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center p-4">
 
     <div class="w-full max-w-md flex justify-between mb-4 items-center">
         <div class="flex gap-2">
-            <button onclick="showSection('settings')" class="p-2 bg-white rounded-full shadow text-gray-600 active:scale-90 transition"><i class="fas fa-cog"></i></button>
-            <select id="langSwitcher" onchange="changeLanguage(this.value)" class="bg-white border py-1 px-3 rounded-lg shadow-sm outline-none text-xs font-bold">
+            <button onclick="showSection('settings')" class="p-2 bg-white rounded-full shadow text-gray-600"><i class="fas fa-cog"></i></button>
+            <select id="langSwitcher" onchange="changeLanguage(this.value)" class="bg-white border py-1 px-3 rounded-lg shadow-sm text-xs font-bold outline-none">
                 <option value="bn">বাংলা</option>
                 <option value="en">English</option>
             </select>
@@ -45,71 +44,97 @@
         </section>
 
         <section id="step1">
-            <h1 class="text-2xl font-bold text-center text-green-700 mb-6">কুইজ তৈরি করুন 🐼</h1>
-            <input type="text" id="userName" class="w-full p-4 border rounded-xl mb-6 outline-none focus:ring-2 focus:ring-green-500 text-lg" placeholder="আপনার নাম...">
-            <div class="grid grid-cols-3 gap-4 mb-10">
+            <h1 data-lang="welcomeTitle" class="text-2xl font-bold text-center text-green-700 mb-6">কুইজ তৈরি করুন 🐼</h1>
+            <input type="text" id="userName" class="w-full p-4 border rounded-xl mb-6 outline-none focus:ring-2 focus:ring-green-500" placeholder="আপনার নাম...">
+            <div class="grid grid-cols-3 gap-4 mb-6">
                 <div class="avatar-option p-3 text-center cursor-pointer border-4 border-transparent rounded-2xl bg-gray-50" onclick="selectAvatar(this, '🐼')"><div class="text-5xl">🐼</div></div>
                 <div class="avatar-option p-3 text-center cursor-pointer border-4 border-transparent rounded-2xl bg-gray-50" onclick="selectAvatar(this, '🐻')"><div class="text-5xl">🐻</div></div>
                 <div class="avatar-option p-3 text-center cursor-pointer border-4 border-transparent rounded-2xl bg-gray-50" onclick="selectAvatar(this, '🐨')"><div class="text-5xl">🐨</div></div>
             </div>
-            <button onclick="startQuizCreation()" class="w-full btn-green py-4 rounded-2xl font-bold shadow-lg">চালিয়ে যান →</button>
-            <button onclick="showSection('history')" class="w-full mt-4 text-green-600 font-bold text-sm underline">আমার আগের কুইজগুলো দেখুন</button>
+            <button onclick="startQuizCreation()" data-lang="btnContinue" class="w-full btn-green py-4 rounded-2xl font-bold mb-4 shadow-lg">চালিয়ে যান →</button>
+            <button onclick="loadUserHistoryUI()" data-lang="btnHistory" class="w-full text-green-600 font-bold text-sm underline">আমার আগের কুইজ ও ইতিহাস দেখুন</button>
         </section>
 
         <section id="step2" class="hidden-section">
-            <div class="flex justify-between items-center mb-2"><span id="qCount" class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold"></span></div>
+            <div class="flex justify-between items-center mb-2">
+                <span id="qCount" class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold"></span>
+                <span id="timerText" class="text-xs font-bold text-red-500"></span>
+            </div>
             <div id="timerBarParent" class="w-full bg-gray-100 h-1 mb-6 hidden"><div id="qTimerBar" class="timer-bar"></div></div>
-            <h2 id="currentQuestion" class="text-xl font-bold text-center mb-6 min-h-[60px]"></h2>
+            
+            <div id="customQuestionArea" class="hidden mb-4 p-4 bg-blue-50 rounded-xl">
+                <input type="text" id="customQInput" class="w-full p-2 border rounded mb-2" placeholder="আপনার প্রশ্ন...">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" class="custom-opt p-1 border rounded text-xs" placeholder="অপশন ১">
+                    <input type="text" class="custom-opt p-1 border rounded text-xs" placeholder="অপশন ২">
+                    <input type="text" class="custom-opt p-1 border rounded text-xs" placeholder="অপশন ৩">
+                    <input type="text" class="custom-opt p-1 border rounded text-xs" placeholder="অপশন ৪">
+                </div>
+                <button onclick="saveCustomQuestion()" data-lang="btnSave" class="w-full bg-blue-600 text-white mt-2 py-2 rounded font-bold">সেভ করুন</button>
+            </div>
+
+            <h2 id="currentQuestion" class="text-xl font-bold text-center mb-6 min-h-[60px] text-gray-800"></h2>
             <div id="optionsGrid" class="grid grid-cols-1 gap-3"></div>
-            <div id="creatorControls" class="mt-8 text-center"><button onclick="skipQuestion()" class="text-orange-500 font-bold py-2">স্কিপ করুন ➔</button></div>
+            
+            <div id="creatorControls" class="mt-8 flex flex-col gap-2 text-center">
+                <button onclick="skipQuestion()" data-lang="btnSkip" class="text-orange-500 font-bold text-sm">এই প্রশ্নটি স্কিপ করুন ➔</button>
+                <button onclick="enableCustomQuestion()" data-lang="btnAddCustom" class="text-blue-500 text-xs underline">নিজের প্রশ্ন যোগ করুন</button>
+            </div>
         </section>
 
         <section id="step3" class="hidden-section text-center">
             <div class="text-5xl mb-4">🎉</div>
-            <h2 class="text-xl font-bold mb-4">আপনার কুইজ লিঙ্ক:</h2>
-            <input type="text" id="shareLink" readonly class="w-full p-3 bg-gray-50 border-2 border-dashed border-green-300 rounded-xl mb-6 text-center text-sm">
-            <div class="flex justify-center gap-4 mb-8">
-                <button onclick="shareSocial('whatsapp')" class="text-green-500 text-4xl"><i class="fab fa-whatsapp"></i></button>
-                <button onclick="shareSocial('facebook')" class="text-blue-700 text-4xl"><i class="fab fa-facebook"></i></button>
-                <button onclick="copyLink()" class="text-gray-500 text-4xl"><i class="fas fa-copy"></i></button>
+            <h2 data-lang="shareTitle" class="text-xl font-bold mb-4">কুইজ লিঙ্ক রেডি!</h2>
+            <input type="text" id="shareLink" readonly class="w-full p-3 bg-gray-50 border-2 border-dashed border-green-400 rounded-xl mb-6 text-center text-sm font-medium">
+            
+            <div class="grid grid-cols-5 gap-3 mb-8">
+                <button onclick="shareSocial('whatsapp')" class="flex flex-col items-center gap-1"><i class="fab fa-whatsapp text-4xl text-green-500"></i><span class="text-[8px]">WhatsApp</span></button>
+                <button onclick="shareSocial('facebook')" class="flex flex-col items-center gap-1"><i class="fab fa-facebook text-4xl text-blue-700"></i><span class="text-[8px]">Facebook</span></button>
+                <button onclick="shareSocial('messenger')" class="flex flex-col items-center gap-1"><i class="fab fa-facebook-messenger text-4xl text-blue-500"></i><span class="text-[8px]">Messenger</span></button>
+                <button onclick="shareSocial('instagram')" class="flex flex-col items-center gap-1"><i class="fab fa-instagram text-4xl text-pink-600"></i><span class="text-[8px]">Instagram</span></button>
+                <button onclick="shareSocial('imo')" class="flex flex-col items-center gap-1"><i class="fas fa-comment-dots text-4xl text-blue-400"></i><span class="text-[8px]">IMO</span></button>
             </div>
+
+            <button onclick="copyLink()" data-lang="btnCopy" class="w-full btn-green py-3 rounded-xl font-bold mb-6">কপি লিঙ্ক (Copy Link)</button>
+            
             <div class="text-left border-t pt-4">
-                <h3 class="font-bold text-gray-700 mb-3">বন্ধুদের ফলাফল:</h3>
-                <div id="leaderboardEntries" class="space-y-2"></div>
+                <h3 class="font-bold text-gray-700 mb-3 flex justify-between items-center">
+                    <span data-lang="scoreTitle">বন্ধুদের স্কোর:</span>
+                    <button onclick="loadUserHistoryUI()" data-lang="btnHistorySmall" class="text-green-600 text-xs font-bold underline">ইতিহাস</button>
+                </h3>
+                <div id="leaderboardEntries" class="space-y-2 max-h-48 overflow-y-auto"></div>
             </div>
-            <button onclick="createNewQuiz()" class="mt-8 text-green-600 font-bold underline">নতুন কুইজ তৈরি করুন</button>
+            <button onclick="createNewQuiz()" data-lang="btnCreateNew" class="mt-6 text-green-600 font-bold underline text-sm">নতুন কুইজ তৈরি করুন</button>
+        </section>
+
+        <section id="history" class="hidden-section">
+            <h2 data-lang="historyTitle" class="text-xl font-bold mb-4 text-center">কুইজ ইতিহাস</h2>
+            <div id="historyList" class="space-y-3 mb-6 overflow-y-auto max-h-80 px-1"></div>
+            <button onclick="showSection('step1')" data-lang="btnBack" class="w-full text-green-600 font-bold mt-4">← ফিরে যাও</button>
         </section>
 
         <section id="step4" class="hidden-section text-center">
             <div id="friendAvatarDisp" class="text-7xl mb-4">🐼</div>
-            <h2 id="friendWelcomeTxt" class="text-xl font-bold mb-6"></h2>
-            <input type="text" id="friendNameInput" class="w-full p-4 border rounded-xl mb-6 outline-none" placeholder="তোমার নাম...">
-            <button onclick="startFriendQuiz()" class="w-full btn-green py-4 rounded-2xl font-bold">শুরু করো</button>
-        </section>
-
-        <section id="history" class="hidden-section">
-            <h2 class="text-xl font-bold mb-4 text-center">কুইজ হিস্টোরি (History)</h2>
-            <div id="historyList" class="space-y-3 mb-6">
-                <p class="text-center text-gray-400 text-sm">লগইন করলে আপনার সব কুইজ এখানে দেখা যাবে।</p>
-            </div>
-            <button onclick="goBack()" class="w-full text-green-600 font-bold mt-4">← ফিরে যাও</button>
-        </section>
-
-        <section id="settings" class="hidden-section">
-            <h2 class="text-xl font-bold mb-6 text-center">সেটিংস</h2>
-            <button onclick="resetAllData()" class="w-full bg-red-500 text-white py-4 rounded-xl mb-8 font-bold">RESET ALL DATA</button>
-            <div class="bg-gray-50 p-5 rounded-2xl border text-sm">
-                <p class="font-bold text-green-700 mb-2">Developers:</p>
-                <p>1. Muhammed Omor <a href="https://facebook.com/muhammedomor.fb" class="text-blue-500"><i class="fab fa-facebook"></i></a></p>
-                <p class="mt-1">2. Rafiul Hasan Rafin <a href="https://instagram.com/its_rafiul_hasan" class="text-pink-500"><i class="fab fa-instagram"></i></a></p>
-            </div>
-            <button onclick="goBack()" class="w-full mt-8 text-green-600 font-bold">← ফিরে যাও</button>
+            <h2 id="friendWelcomeTxt" class="text-xl font-bold mb-6 text-green-700"></h2>
+            <input type="text" id="friendNameInput" class="w-full p-4 border rounded-xl mb-6 outline-none" placeholder="তোমার নাম লেখো...">
+            <button onclick="startFriendQuiz()" data-lang="btnStartQuiz" class="w-full btn-green py-4 rounded-2xl font-bold">কুইজ শুরু করো</button>
         </section>
 
         <section id="step5" class="hidden-section text-center">
             <div class="text-7xl mb-4">🏆</div>
             <div id="finalScore" class="text-7xl font-bold text-green-600 mb-8">0/10</div>
-            <button onclick="createNewQuiz()" class="w-full btn-green py-4 rounded-2xl font-bold">নিজের কুইজ তৈরি করুন 🚀</button>
+            <button onclick="createNewQuiz()" data-lang="btnResultCreate" class="w-full btn-green py-4 rounded-2xl font-bold shadow-lg">নিজের কুইজ তৈরি করুন 🚀</button>
+        </section>
+
+        <section id="settings" class="hidden-section">
+            <h2 data-lang="settingsTitle" class="text-xl font-bold mb-6 text-center">সেটিংস</h2>
+            <button onclick="resetAllData()" data-lang="btnReset" class="w-full bg-red-500 text-white py-4 rounded-xl mb-8 font-bold">সব তথ্য মুছুন (RESET)</button>
+            <div class="bg-gray-50 p-5 rounded-2xl border text-sm text-center">
+                <p class="font-bold text-green-700 mb-2 underline">Developers</p>
+                <p>Muhammed Omor <a href="https://facebook.com/muhammedomor.fb" target="_blank" class="text-blue-500 ml-1"><i class="fab fa-facebook"></i></a></p>
+                <p class="mt-2">Rafiul Hasan Rafin <a href="https://instagram.com/its_rafiul_hasan" target="_blank" class="text-pink-500 ml-1"><i class="fab fa-instagram"></i></a></p>
+            </div>
+            <button onclick="showSection('step1')" data-lang="btnBack" class="w-full mt-8 text-green-600 font-bold">← ফিরে যাও</button>
         </section>
 
     </main>
@@ -141,7 +166,6 @@
                 document.getElementById('displayUserName').innerText = user.displayName.split(' ')[0];
                 document.getElementById('userImg').innerHTML = `<img src="${user.photoURL}" class="w-full h-full object-cover">`;
                 document.getElementById('authBtn').innerText = "Logout";
-                loadUserHistory(user.uid);
             }
         });
 
@@ -149,76 +173,135 @@
     </script>
 
     <script>
+        const langDict = {
+            bn: {
+                welcomeTitle: "কুইজ তৈরি করুন 🐼",
+                btnContinue: "চালিয়ে যান →",
+                btnHistory: "আমার আগের কুইজ ও ইতিহাস দেখুন",
+                btnSkip: "এই প্রশ্নটি স্কিপ করুন ➔",
+                btnAddCustom: "নিজের প্রশ্ন যোগ করুন",
+                btnSave: "সেভ করুন",
+                shareTitle: "কুইজ লিঙ্ক রেডি!",
+                btnCopy: "কপি লিঙ্ক (Copy Link)",
+                scoreTitle: "বন্ধুদের স্কোর:",
+                btnHistorySmall: "ইতিহাস",
+                btnCreateNew: "নতুন কুইজ তৈরি করুন",
+                historyTitle: "কুইজ ইতিহাস",
+                btnBack: "← ফিরে যাও",
+                btnStartQuiz: "কুইজ শুরু করো",
+                btnResultCreate: "নিজের কুইজ তৈরি করুন 🚀",
+                settingsTitle: "সেটিংস",
+                btnReset: "সব তথ্য মুছুন (RESET)",
+                namePlaceholder: "আপনার নাম...",
+                friendPlaceholder: "তোমার নাম লেখো..."
+            },
+            en: {
+                welcomeTitle: "Create Quiz 🐼",
+                btnContinue: "Continue →",
+                btnHistory: "View My Previous Quizzes",
+                btnSkip: "Skip this question ➔",
+                btnAddCustom: "Add Your Own Question",
+                btnSave: "Save",
+                shareTitle: "Quiz Link is Ready!",
+                btnCopy: "Copy Link",
+                scoreTitle: "Friend Scores:",
+                btnHistorySmall: "History",
+                btnCreateNew: "Create New Quiz",
+                historyTitle: "Quiz History",
+                btnBack: "← Back",
+                btnStartQuiz: "Start Quiz",
+                btnResultCreate: "Create Your Own Quiz 🚀",
+                settingsTitle: "Settings",
+                btnReset: "Reset All Data",
+                namePlaceholder: "Enter your name...",
+                friendPlaceholder: "Enter friend's name..."
+            }
+        };
+
         const pool = [
             { bn: "পছন্দের রং কি?", en: "Favorite Color?", o: { bn: ["সাদা", "কালো", "নীল", "লাল"], en: ["White", "Black", "Blue", "Red"] } },
-            { bn: "রাগ কেমন আপনার?", en: "Anger level?", o: { bn: ["প্রচণ্ড", "অল্প", "মাঝারি", "নেই"], en: ["High", "Low", "Medium", "None"] } },
-            { bn: "সবচেয়ে বেশি ব্যবহৃত অ্যাপ?", en: "Most used app?", o: { bn: ["Facebook", "YouTube", "TikTok", "WhatsApp"], en: ["FB", "YouTube", "TikTok", "WhatsApp"] } },
-            { bn: "চা নাকি কফি?", en: "Tea or Coffee?", o: { bn: ["দুধ চা", "রঙ চা", "কফি", "কিছু না"], en: ["Milk Tea", "Black Tea", "Coffee", "None"] } },
-            { bn: "প্রিয় ঋতু কোনটি?", en: "Favorite Season?", o: { bn: ["শীত", "বর্ষা", "বসন্ত", "শরৎ"], en: ["Winter", "Rainy", "Spring", "Autumn"] } }
-            // ... (আগের ৩০টি প্রশ্ন এখানে যুক্ত থাকবে)
+            { bn: "সবচেয়ে প্রিয় খাবার?", en: "Favorite Food?", o: { bn: ["কাচ্চি", "বার্গার", "খিচুড়ি", "ফুচকা"], en: ["Kacchi", "Burger", "Khichuri", "Fuchka"] } },
+            { bn: "সবচেয়ে বেশি কোন অ্যাপ ব্যবহার করেন?", en: "Most used app?", o: { bn: ["Facebook", "YouTube", "TikTok", "WhatsApp"], en: ["FB", "YouTube", "TikTok", "WhatsApp"] } },
+            { bn: "প্রিয় ঋতু কোনটি?", en: "Favorite Season?", o: { bn: ["শীত", "বর্ষা", "বসন্ত", "শরৎ"], en: ["Winter", "Rainy", "Spring", "Autumn"] } },
+            { bn: "টাকা নাকি ভালোবাসা?", en: "Money or Love?", o: { bn: ["টাকা", "ভালোবাসা", "দুইটাই", "কোনোটাই না"], en: ["Money", "Love", "Both", "None"] } }
+            // (More questions follow same structure...)
         ];
 
         let userProfile = JSON.parse(localStorage.getItem('myQuizProfile')) || { name: '', avatar: '🐼', answers: [], quizId: '' };
-        let activePool = [...pool].sort(() => Math.random() - 0.5);
         let currentLang = localStorage.getItem('lang') || 'bn';
-        let quizDB = null;
-        let score = 0;
-        let qIdx = 0;
+        let activePool = [...pool].sort(() => Math.random() - 0.5);
+        let quizFromDB = null;
+        let friendScore = 0;
+        let friendQIdx = 0;
+        let timer;
         let unsubscribe = null;
 
         function init() {
+            document.getElementById('langSwitcher').value = currentLang;
+            applyLanguage();
             const qId = new URLSearchParams(window.location.search).get('id');
             if (qId) loadFriendMode(qId);
             else if (userProfile.quizId) showSharePage(userProfile.quizId);
         }
 
-        async function loadUserHistory(uid) {
-            const q = window.fs.query(window.fs.collection(window.fs.db, "quizzes"), window.fs.where("creatorId", "==", uid));
-            const querySnapshot = await window.fs.getDocs(q);
-            const list = document.getElementById('historyList');
-            list.innerHTML = '';
-            
-            if (querySnapshot.empty) {
-                list.innerHTML = '<p class="text-center text-gray-400">কোনো কুইজ পাওয়া যায়নি।</p>';
-                return;
+        function changeLanguage(v) {
+            currentLang = v;
+            localStorage.setItem('lang', v);
+            applyLanguage();
+            // কুইজ চলাকালীন হলে কুইজ রি-রেন্ডার করবে
+            if(!document.getElementById('step2').classList.contains('hidden-section')) {
+                if(quizFromDB) renderFriendQuestion(); else renderCreatorQuestion();
             }
-
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                const div = document.createElement('div');
-                div.className = "history-item border p-3 rounded-xl bg-white shadow-sm flex justify-between items-center";
-                div.innerHTML = `<div><p class="font-bold text-sm">${data.creator}-এর কুইজ</p><p class="text-[10px] text-gray-400">ID: ${doc.id}</p></div><i class="fas fa-chevron-right text-green-500"></i>`;
-                div.onclick = () => { userProfile.quizId = doc.id; showSharePage(doc.id); };
-                list.appendChild(div);
-            });
         }
 
-        async function startQuizCreation() {
+        function applyLanguage() {
+            const texts = langDict[currentLang];
+            document.querySelectorAll('[data-lang]').forEach(el => {
+                const key = el.getAttribute('data-lang');
+                if(texts[key]) el.innerText = texts[key];
+            });
+            document.getElementById('userName').placeholder = texts.namePlaceholder;
+            document.getElementById('friendNameInput').placeholder = texts.friendPlaceholder;
+        }
+
+        // --- Quiz Creation Logic ---
+        function startQuizCreation() {
             userProfile.name = document.getElementById('userName').value;
-            if(!userProfile.name) return alert("নাম লিখুন!");
+            if(!userProfile.name) return alert(currentLang === 'bn' ? "নাম দিন!" : "Enter name!");
             showSection('step2');
             renderCreatorQuestion();
         }
 
         function renderCreatorQuestion() {
             if (userProfile.answers.length >= 10) return saveToCloud();
+            document.getElementById('customQuestionArea').classList.add('hidden');
             const q = activePool[0];
-            document.getElementById('qCount').innerText = `${userProfile.answers.length + 1}/10`;
+            document.getElementById('qCount').innerText = currentLang === 'bn' ? `প্রশ্ন: ${userProfile.answers.length + 1}/10` : `Question: ${userProfile.answers.length + 1}/10`;
             document.getElementById('currentQuestion').innerText = q[currentLang];
             const grid = document.getElementById('optionsGrid');
             grid.innerHTML = '';
             q.o[currentLang].forEach((opt, i) => {
                 const b = document.createElement('button');
-                b.className = "w-full p-4 border-2 rounded-xl text-left font-medium active:scale-95 transition";
+                b.className = "w-full p-4 border-2 rounded-xl text-left font-medium active:scale-95 transition hover:bg-green-50";
                 b.innerText = opt;
                 b.onclick = () => {
-                    userProfile.answers.push({ q: q.bn, a: i, o: q.o });
+                    userProfile.answers.push({ q: {bn: q.bn, en: q.en}, a: i, o: q.o });
                     activePool.shift();
                     renderCreatorQuestion();
                 };
                 grid.appendChild(b);
             });
         }
+
+        function enableCustomQuestion() { document.getElementById('customQuestionArea').classList.toggle('hidden'); }
+        function saveCustomQuestion() {
+            const qT = document.getElementById('customQInput').value;
+            const oS = Array.from(document.querySelectorAll('.custom-opt')).map(i => i.value);
+            if(!qT || oS.some(o => !o)) return alert("Fill all fields!");
+            userProfile.answers.push({ q: {bn: qT, en: qT}, a: 0, o: { bn: oS, en: oS } });
+            renderCreatorQuestion();
+        }
+        function skipQuestion() { if(activePool.length > 1) { activePool.shift(); renderCreatorQuestion(); } }
 
         async function saveToCloud() {
             showSection('loader');
@@ -238,28 +321,46 @@
             if(unsubscribe) unsubscribe();
             unsubscribe = window.fs.onSnapshot(window.fs.doc(window.fs.db, "quizzes", id), (snap) => {
                 const data = snap.data();
-                document.getElementById('leaderboardEntries').innerHTML = data.results.map(r => `
-                    <div class="flex justify-between bg-gray-50 p-3 rounded-xl border border-green-50 animate-fade">
-                        <span class="font-medium">${r.name}</span><span class="font-bold text-green-600">${r.score}/10</span>
-                    </div>
-                `).join('');
+                if(data) {
+                    document.getElementById('leaderboardEntries').innerHTML = data.results.map(r => `
+                        <div class="flex justify-between bg-gray-50 p-3 rounded-lg border-b"><span class="text-sm font-medium">${r.name}</span><span class="font-bold text-green-600">${r.score}/10</span></div>
+                    `).join('');
+                }
             });
         }
 
-        // Friend Mode & Others (আগের মতোই থাকবে)
+        async function loadUserHistoryUI() {
+            const user = window.fbAuth.auth.currentUser;
+            if(!user) return alert(currentLang === 'bn' ? "লগইন করুন!" : "Please login!");
+            showSection('history');
+            const q = window.fs.query(window.fs.collection(window.fs.db, "quizzes"), window.fs.where("creatorId", "==", user.uid));
+            const snap = await window.fs.getDocs(q);
+            const list = document.getElementById('historyList');
+            list.innerHTML = '';
+            snap.forEach(doc => {
+                const d = doc.data();
+                const div = document.createElement('div');
+                div.className = "history-item p-3 bg-white border rounded-lg flex justify-between items-center shadow-sm";
+                div.innerHTML = `<div><p class="font-bold text-sm text-gray-700">${d.creator}-এর কুইজ</p><p class="text-[10px] text-gray-400">${doc.id}</p></div><button class="bg-green-600 text-white px-3 py-1 rounded text-xs">Open</button>`;
+                div.onclick = () => { userProfile.quizId = doc.id; showSharePage(doc.id); };
+                list.appendChild(div);
+            });
+        }
+
+        // --- Friend Mode Logic ---
         async function loadFriendMode(id) {
             showSection('loader');
             const snap = await window.fs.getDoc(window.fs.doc(window.fs.db, "quizzes", id));
             if (snap.exists()) {
-                quizDB = snap.data();
+                quizFromDB = snap.data();
                 showSection('step4');
-                document.getElementById('friendAvatarDisp').innerText = quizDB.avatar;
-                document.getElementById('friendWelcomeTxt').innerText = `${quizDB.creator} সম্পর্কে তুমি কতটুকু জানো?`;
+                document.getElementById('friendAvatarDisp').innerText = quizFromDB.avatar;
+                document.getElementById('friendWelcomeTxt').innerText = currentLang === 'bn' ? `${quizFromDB.creator} সম্পর্কে কতটুকু জানো?` : `How much do you know about ${quizFromDB.creator}?`;
             } else createNewQuiz();
         }
 
         function startFriendQuiz() {
-            if(!document.getElementById('friendNameInput').value) return alert("নাম লেখো!");
+            if(!document.getElementById('friendNameInput').value) return alert("Enter name!");
             showSection('step2');
             document.getElementById('creatorControls').classList.add('hidden');
             document.getElementById('timerBarParent').classList.remove('hidden');
@@ -267,13 +368,23 @@
         }
 
         function renderFriendQuestion() {
-            const qD = quizDB.answers[qIdx];
-            document.getElementById('currentQuestion').innerText = qD.q;
+            clearInterval(timer);
+            let t = 15;
+            const bar = document.getElementById('qTimerBar');
+            bar.style.width = '100%';
+            timer = setInterval(() => {
+                t--; bar.style.width = (t/15*100)+'%';
+                if(t<=0) handleAnswer(-1, null);
+            }, 1000);
+
+            const qD = quizFromDB.answers[friendQIdx];
+            document.getElementById('qCount').innerText = currentLang === 'bn' ? `প্রশ্ন: ${friendQIdx + 1}/10` : `Question: ${friendQIdx + 1}/10`;
+            document.getElementById('currentQuestion').innerText = qD.q[currentLang];
             const grid = document.getElementById('optionsGrid');
             grid.innerHTML = '';
             qD.o[currentLang].forEach((opt, i) => {
                 const b = document.createElement('button');
-                b.className = "opt-btn w-full p-4 border-2 rounded-xl text-left font-medium";
+                b.className = "opt-btn w-full p-4 border-2 rounded-xl text-left font-medium transition";
                 b.innerText = opt;
                 b.onclick = () => handleAnswer(i, b);
                 grid.appendChild(b);
@@ -281,43 +392,54 @@
         }
 
         function handleAnswer(i, btn) {
-            const correct = quizDB.answers[qIdx].a;
+            clearInterval(timer);
+            const correct = quizFromDB.answers[friendQIdx].a;
             const btns = document.querySelectorAll('.opt-btn');
             btns.forEach(b => b.disabled = true);
-            if(i === correct) { btn.classList.add('correct-ans'); score++; }
+            if(i === correct) { if(btn) btn.classList.add('correct-ans'); friendScore++; }
             else { if(btn) btn.classList.add('wrong-ans'); btns[correct].classList.add('correct-ans'); }
+
             setTimeout(() => {
-                qIdx++;
-                if(qIdx < 10) renderFriendQuestion();
-                else finishQuiz();
+                friendQIdx++;
+                if(friendQIdx < 10) renderFriendQuestion();
+                else finishFriendQuiz();
             }, 1200);
         }
 
-        async function finishQuiz() {
+        async function finishFriendQuiz() {
+            showSection('loader');
             const id = new URLSearchParams(window.location.search).get('id');
             const name = document.getElementById('friendNameInput').value;
             await window.fs.updateDoc(window.fs.doc(window.fs.db, "quizzes", id), {
-                results: window.fs.arrayUnion({ name, score })
+                results: window.fs.arrayUnion({ name, score: friendScore })
             });
             showSection('step5');
-            document.getElementById('finalScore').innerText = `${score}/10`;
+            document.getElementById('finalScore').innerText = `${friendScore}/10`;
+            if(friendScore >= 7) confetti({ particleCount: 150 });
         }
 
-        async function handleAuth() {
-            if (window.fbAuth.auth.currentUser) await window.fbAuth.signOut(window.fbAuth.auth);
-            else await window.fbAuth.signInWithPopup(window.fbAuth.auth, window.fbAuth.provider);
-            location.reload();
+        // --- Core Functions ---
+        function handleAuth() {
+            if (window.fbAuth.auth.currentUser) window.fbAuth.signOut(window.fbAuth.auth).then(() => location.reload());
+            else window.fbAuth.signInWithPopup(window.fbAuth.auth, window.fbAuth.provider).then(() => location.reload());
         }
-
-        function showSection(id) { document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section')); document.getElementById(id).classList.remove('hidden-section'); }
         function createNewQuiz() { localStorage.removeItem('myQuizProfile'); location.href = location.pathname; }
-        function goBack() { showSection('step1'); }
+        function showSection(id) { document.querySelectorAll('section').forEach(s => s.classList.add('hidden-section')); document.getElementById(id).classList.remove('hidden-section'); }
         function selectAvatar(el, icon) { document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('avatar-selected')); el.classList.add('avatar-selected'); userProfile.avatar = icon; }
         function copyLink() { navigator.clipboard.writeText(document.getElementById('shareLink').value); alert("Link Copied!"); }
+        function resetAllData() { if(confirm("Confirm Reset?")) createNewQuiz(); }
+        
         function shareSocial(p) {
             const url = encodeURIComponent(document.getElementById('shareLink').value);
-            const l = { whatsapp: `https://wa.me/?text=${url}`, facebook: `https://facebook.com/sharer/sharer.php?u=${url}` };
-            if(l[p]) window.open(l[p], '_blank');
+            const txt = encodeURIComponent(currentLang === 'bn' ? "আমার বন্ধুত্ব কুইজটি খেলো!" : "Play my friendship quiz!");
+            const links = {
+                whatsapp: `https://wa.me/?text=${txt}%20${url}`,
+                facebook: `https://facebook.com/sharer/sharer.php?u=${url}`,
+                messenger: `fb-messenger://share?link=${url}`,
+                instagram: `https://instagram.com`,
+                imo: `imo://share?url=${url}`
+            };
+            if(links[p]) window.open(links[p], '_blank');
         }
     </script>
 </body>
