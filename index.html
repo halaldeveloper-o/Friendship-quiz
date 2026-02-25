@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Friendship Quiz - Expert Edition</title>
+    <title>Friendship Quiz - Pro Fix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -13,8 +13,8 @@
         .btn-green { background-color: #28a745; color: white; transition: 0.2s; }
         .hidden-section { display: none; }
         .avatar-selected { border: 4px solid #28a745; background-color: #dcfce7; }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
-        .animate-slide { animation: slideIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .animate-fade { animation: fadeIn 0.5s ease-in; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center p-4">
@@ -27,11 +27,10 @@
         </select>
     </div>
 
-    <main class="w-full max-w-md bg-white shadow-2xl card p-6">
+    <main class="w-full max-w-md bg-white shadow-2xl card p-6 animate-fade">
         
         <section id="tutorial">
-            <div id="tutorialContent" class="text-center animate-slide">
-                </div>
+            <div id="tutorialContent" class="text-center"></div>
             <div class="flex justify-between mt-8">
                 <button id="skipTutorial" onclick="showSection('step1')" class="text-gray-400 font-semibold">Skip</button>
                 <button id="nextTutorial" onclick="nextTutorialStep()" class="btn-green px-6 py-2 rounded-xl font-bold">Next</button>
@@ -40,57 +39,54 @@
 
         <section id="step1" class="hidden-section">
             <h1 id="txtWelcome" class="text-2xl font-bold text-center text-green-700 mb-2"></h1>
-            <div class="mb-4">
-                <label id="txtLabelName" class="block text-sm font-semibold mb-2"></label>
-                <input type="text" id="userName" class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-green-500">
-            </div>
-            <label id="txtLabelAvatar" class="block text-sm font-semibold mb-2 text-center"></label>
+            <input type="text" id="userName" class="w-full p-3 border rounded-xl mb-4 outline-none focus:ring-2 focus:ring-green-500" placeholder="নাম...">
             <div class="grid grid-cols-3 gap-4 mb-8">
                 <div class="avatar-option p-2 text-center cursor-pointer border-4 border-transparent rounded-xl" onclick="selectAvatar(this)">
-                    <div class="text-4xl">🐼</div><span class="text-xs font-bold male-label">Male</span>
+                    <div class="text-4xl">🐼</div><span class="text-xs font-bold">Male</span>
                 </div>
                 <div class="avatar-option p-2 text-center cursor-pointer border-4 border-transparent rounded-xl" onclick="selectAvatar(this)">
-                    <div class="text-4xl">🐻</div><span class="text-xs font-bold female-label">Female</span>
+                    <div class="text-4xl">🐻</div><span class="text-xs font-bold">Female</span>
                 </div>
                 <div class="avatar-option p-2 text-center cursor-pointer border-4 border-transparent rounded-xl" onclick="selectAvatar(this)">
-                    <div class="text-4xl">🐨</div><span class="text-xs font-bold other-label">Other</span>
+                    <div class="text-4xl">🐨</div><span class="text-xs font-bold">Other</span>
                 </div>
             </div>
-            <button id="btnContinue" onclick="startQuizCreation()" class="w-full btn-green py-4 rounded-xl font-bold text-lg shadow-lg"></button>
+            <button id="btnContinue" onclick="startQuizCreation()" class="w-full btn-green py-4 rounded-xl font-bold shadow-lg"></button>
         </section>
 
         <section id="step2" class="hidden-section">
             <div class="flex justify-between items-center mb-4">
                 <span id="qCount" class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold"></span>
             </div>
-            <div class="text-center">
-                <h2 id="currentQuestion" class="text-xl font-bold mb-6"></h2>
-                <div id="optionsGrid" class="grid grid-cols-1 gap-3"></div>
-            </div>
+            <h2 id="currentQuestion" class="text-xl font-bold text-center mb-6"></h2>
+            <div id="optionsGrid" class="grid grid-cols-1 gap-3"></div>
             <button id="btnSkip" onclick="skipQuestion()" class="w-full mt-6 text-orange-500 font-semibold"></button>
         </section>
 
         <section id="step3" class="hidden-section text-center">
             <div class="text-6xl mb-4">🎉</div>
-            <h2 id="txtReady" class="text-2xl font-bold mb-2"></h2>
-            <input type="text" id="shareLink" readonly class="w-full p-3 bg-gray-50 border border-dashed border-green-400 rounded-lg mb-4 text-sm text-center">
-            <div class="flex justify-center gap-4 mb-6">
-                <button onclick="shareSocial('whatsapp')" class="text-green-500 text-3xl"><i class="fab fa-whatsapp"></i></button>
-                <button onclick="shareSocial('facebook')" class="text-blue-800 text-3xl"><i class="fab fa-facebook"></i></button>
+            <h2 id="txtReady" class="text-2xl font-bold mb-4"></h2>
+            <input type="text" id="shareLink" readonly class="w-full p-3 bg-gray-50 border border-dashed border-green-400 rounded-lg mb-4 text-center">
+            <div class="flex justify-center gap-6 mb-6">
+                <button onclick="shareSocial('whatsapp')" class="text-green-500 text-4xl"><i class="fab fa-whatsapp"></i></button>
+                <button onclick="shareSocial('facebook')" class="text-blue-700 text-4xl"><i class="fab fa-facebook"></i></button>
             </div>
             <button id="btnCopy" onclick="copyLink()" class="w-full btn-green py-4 rounded-xl font-bold mb-4"></button>
-            <div id="leaderboardEntries" class="mt-4 text-left border-t pt-4 space-y-2"></div>
+            <div id="leaderboard" class="text-left border-t pt-4">
+                <h3 id="txtLeaderboard" class="font-bold mb-2"></h3>
+                <div id="leaderboardEntries" class="space-y-2"></div>
+            </div>
         </section>
 
         <section id="settings" class="hidden-section">
             <h2 id="txtSettings" class="text-xl font-bold mb-6 text-center"></h2>
-            <button id="btnReset" onclick="resetAllData()" class="w-full bg-red-500 text-white py-3 rounded-xl mb-4 font-bold"></button>
-            <div class="border-t pt-4 bg-gray-50 p-4 rounded-xl">
-                <h3 id="txtDevInfo" class="font-bold text-gray-700 mb-2"></h3>
-                <p class="text-sm text-gray-600 font-semibold">1. Muhammed Omor</p>
-                <p class="text-sm text-gray-600 font-semibold">2. Rafiul Hasan Rafin</p>
+            <button id="btnReset" onclick="resetAllData()" class="w-full bg-red-500 text-white py-3 rounded-xl mb-6 font-bold">RESET ALL DATA</button>
+            <div class="bg-gray-50 p-4 rounded-xl">
+                <h3 id="txtDevInfo" class="font-bold mb-2"></h3>
+                <p class="text-sm font-semibold">1. Muhammed Omor</p>
+                <p class="text-sm font-semibold">2. Rafiul Hasan Rafin</p>
             </div>
-            <button id="btnBack" onclick="goBack()" class="w-full mt-8 text-green-600 font-bold"></button>
+            <button id="btnBack" onclick="goBack()" class="w-full mt-6 text-green-600 font-bold">BACK</button>
         </section>
 
     </main>
@@ -110,46 +106,47 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         window.fs = { db, doc, setDoc, updateDoc, arrayUnion, onSnapshot, getDoc };
+        
+        // এবার লজিক শুরু
+        initApp();
     </script>
 
     <script>
         const uiText = {
             bn: {
-                welcome: "কুইজ তৈরি করো! 🐼", name: "তোমার নাম:", avatar: "অ্যাভাটার বেছে নাও:", continue: "চালিয়ে যাও →",
-                skip: "এই প্রশ্নটি পছন্দ নয়? স্কিপ করো", ready: "কুইজ রেডি!", copy: "লিঙ্ক কপি করো 📋", 
-                settings: "সেটিংস", reset: "রিসেট অল ডাটা", dev: "ডেভলপার ইনফর্মেশন:", back: "ফিরে যাও",
-                qPrefix: "প্রশ্ন", male: "পুরুষ", female: "মহিলা", other: "অন্যান্য",
-                tutorial: [
-                    { t: "স্বাগতম! 👋", d: "প্রথমে নিজের নাম দিন এবং একটি সুন্দর অ্যাভাটার বেছে নিন।" },
-                    { t: "প্রশ্ন সেট করুন 📝", d: "আপনার সম্পর্কে ১০টি প্রশ্নের উত্তর দিন। কোনো প্রশ্ন ভালো না লাগলে স্কিপ করুন।" },
-                    { t: "শেয়ার করুন 🚀", d: "লিঙ্কটি বন্ধুদের পাঠান এবং দেখুন কে আপনাকে সবথেকে ভালো চেনে!" }
+                welcome: "কুইজ তৈরি করো! 🐼", nameLabel: "তোমার নাম:", avatarLabel: "অ্যাভাটার বেছে নাও:", continue: "চালিয়ে যাও →",
+                skip: "স্কিপ করো ➔", ready: "কুইজ রেডি!", copy: "লিঙ্ক কপি করো", settings: "সেটিংস", reset: "রিসেট অল ডাটা",
+                dev: "ডেভলপার ইনফর্মেশন:", back: "ফিরে যাও", qPrefix: "প্রশ্ন", lb: "লিডারবোর্ড",
+                tut: [
+                    { t: "স্বাগতম! 👋", d: "প্রথমে নাম ও অ্যাভাটার সেট করুন।" },
+                    { t: "১০টি উত্তর দিন 📝", d: "আপনার সম্পর্কে ১০টি প্রশ্নের উত্তর দিন।" },
+                    { t: "শেয়ার করুন 🚀", d: "লিঙ্কটি বন্ধুদের পাঠিয়ে মজা দেখুন!" }
                 ]
             },
             en: {
-                welcome: "Create Quiz! 🐼", name: "Your Name:", avatar: "Select Avatar:", continue: "Continue →",
-                skip: "Don't like this? Skip it", ready: "Quiz is Ready!", copy: "Copy Link 📋", 
-                settings: "Settings", reset: "Reset All Data", dev: "Developer Info:", back: "Go Back",
-                qPrefix: "Question", male: "Male", female: "Female", other: "Other",
-                tutorial: [
-                    { t: "Welcome! 👋", d: "First, enter your name and pick a cool avatar." },
-                    { t: "Set Questions 📝", d: "Answer 10 questions about yourself. Skip if you don't like one." },
-                    { t: "Share & Enjoy 🚀", d: "Share the link with friends and see who knows you best!" }
+                welcome: "Create Quiz! 🐼", nameLabel: "Your Name:", avatarLabel: "Select Avatar:", continue: "Continue →",
+                skip: "Skip ➔", ready: "Quiz is Ready!", copy: "Copy Link", settings: "Settings", reset: "Reset Data",
+                dev: "Developer Info:", back: "Go Back", qPrefix: "Question", lb: "Leaderboard",
+                tut: [
+                    { t: "Welcome! 👋", d: "Set your name and avatar first." },
+                    { t: "Answer 10 Qs 📝", d: "Answer 10 questions about yourself." },
+                    { t: "Share Link 🚀", d: "Share link and see who knows you best!" }
                 ]
             }
         };
 
         const questionsPool = [
             { bn: "পছন্দের রং কি?", en: "Favorite Color?", o: { bn: ["সাদা", "কালো", "নীল", "লাল"], en: ["White", "Black", "Blue", "Red"] } },
-            { bn: "রাগ কেমন?", en: "How is your anger?", o: { bn: ["প্রচণ্ড", "অল্প", "মাঝারি", "নেই"], en: ["High", "Low", "Medium", "None"] } },
-            { bn: "প্রিয় খাবার কি?", en: "Favorite Food?", o: { bn: ["কাচ্চি", "বার্গার", "খিচুড়ি", "ফুচকা"], en: ["Kacchi", "Burger", "Khichuri", "Fuchka"] } },
-            { bn: "চা নাকি কফি?", en: "Tea or Coffee?", o: { bn: ["দুধ চা", "রঙ চা", "কফি", "কিছুই না"], en: ["Milk Tea", "Black Tea", "Coffee", "None"] } },
+            { bn: "রাগ কেমন?", en: "How's your anger?", o: { bn: ["বেশি", "কম", "মাঝারি", "নেই"], en: ["High", "Low", "Medium", "None"] } },
+            { bn: "প্রিয় খাবার?", en: "Favorite Food?", o: { bn: ["কাচ্চি", "বার্গার", "খিচুড়ি", "ফুচকা"], en: ["Kacchi", "Burger", "Khichuri", "Fuchka"] } },
+            { bn: "চা নাকি কফি?", en: "Tea or Coffee?", o: { bn: ["দুধ চা", "রঙ চা", "কফি", "কিছু না"], en: ["Milk Tea", "Black Tea", "Coffee", "None"] } },
+            { bn: "ঘুরতে যাওয়ার জায়গা?", en: "Dream Trip?", o: { bn: ["পাহাড়", "সমুদ্র", "জঙ্গল", "বাসা"], en: ["Mountain", "Sea", "Jungle", "Home"] } },
+            { bn: "হবি কি?", en: "Hobby?", o: { bn: ["বই পড়া", "খেলা", "ছবি তোলা", "গান"], en: ["Reading", "Sports", "Photo", "Music"] } },
             { bn: "প্রিয় ঋতু?", en: "Favorite Season?", o: { bn: ["শীত", "বর্ষা", "বসন্ত", "শরৎ"], en: ["Winter", "Rainy", "Spring", "Autumn"] } },
-            { bn: "ঘুরতে যাওয়ার জায়গা?", en: "Dream Destination?", o: { bn: ["পাহাড়", "সমুদ্র", "জঙ্গল", "বাসা"], en: ["Mountains", "Sea", "Jungle", "Home"] } },
-            { bn: "বেশি কি ব্যবহার করো?", en: "Most used app?", o: { bn: ["FB", "YouTube", "Insta", "WhatsApp"], en: ["FB", "YouTube", "Insta", "WhatsApp"] } },
-            { bn: "বিকেলে কি করো?", en: "What do you do in evening?", o: { bn: ["আড্ডা", "ঘুম", "কাজ", "ঘুরতে যাওয়া"], en: ["Chatting", "Sleeping", "Working", "Walking"] } },
-            { bn: "মিষ্টি নাকি ঝাল?", en: "Sweet or Spicy?", o: { bn: ["মিষ্টি", "ঝাল", "টক", "সবই"], en: ["Sweet", "Spicy", "Sour", "Both"] } },
-            { bn: "জীবনের লক্ষ্য?", en: "Life Goal?", o: { bn: ["টাকা", "মানুষের সেবা", "ভ্রমণ", "ভালো থাকা"], en: ["Money", "Helping others", "Travel", "Peace"] } },
-            // আপনি এখানে আরও প্রশ্ন যোগ করতে পারেন...
+            { bn: "বেশি কথা বলো?", en: "Talkative?", o: { bn: ["হ্যাঁ", "শান্ত", "মাঝারি", "জানি না"], en: ["Yes", "Quiet", "Normal", "Not sure"] } },
+            { bn: "সকালে ওঠো?", en: "Early Bird?", o: { bn: ["৫টায়", "৮টায়", "১০টায়", "দুপুরে"], en: ["5 AM", "8 AM", "10 AM", "Noon"] } },
+            { bn: "ভয় পাও কি?", en: "Afraid of?", o: { bn: ["অন্ধকার", "সাপ", "পরীক্ষা", "মানুষ"], en: ["Dark", "Snake", "Exams", "People"] } },
+            // আরও ২০টি প্রশ্ন এখানে একইভাবে যোগ করা সম্ভব
         ];
 
         let currentLang = localStorage.getItem('lang') || 'bn';
@@ -157,64 +154,47 @@
         let userProfile = JSON.parse(localStorage.getItem('myQuizProfile')) || { name: '', avatar: '', answers: [], quizId: '' };
         let activePool = [...questionsPool].sort(() => Math.random() - 0.5);
 
-        window.onload = () => {
+        function initApp() {
             document.getElementById('langSwitcher').value = currentLang;
-            updateUILanguage();
+            updateUI();
             
-            const qId = new URLSearchParams(window.location.search).get('id');
+            const params = new URLSearchParams(window.location.search);
+            const qId = params.get('id');
+
             if (qId) {
                 loadFriendMode(qId);
             } else if (userProfile.quizId) {
-                showSection('step3');
-                document.getElementById('shareLink').value = `${window.location.origin}${window.location.pathname}?id=${userProfile.quizId}`;
-                listenToResults(userProfile.quizId);
+                goToSharePage(userProfile.quizId);
             } else {
+                showSection('tutorial');
                 showTutorial();
             }
-        };
-
-        function changeLanguage(lang) {
-            currentLang = lang;
-            localStorage.setItem('lang', lang);
-            updateUILanguage();
-            if (document.getElementById('tutorial').style.display !== 'none') showTutorial();
-            if (document.getElementById('step2').style.display !== 'none') renderCreatorQuestion();
         }
 
-        function updateUILanguage() {
+        function updateUI() {
             const t = uiText[currentLang];
             document.getElementById('txtWelcome').innerText = t.welcome;
-            document.getElementById('txtLabelName').innerText = t.name;
-            document.getElementById('txtLabelAvatar').innerText = t.avatar;
             document.getElementById('btnContinue').innerText = t.continue;
             document.getElementById('btnSkip').innerText = t.skip;
             document.getElementById('txtReady').innerText = t.ready;
             document.getElementById('btnCopy').innerText = t.copy;
             document.getElementById('txtSettings').innerText = t.settings;
-            document.getElementById('btnReset').innerText = t.reset;
             document.getElementById('txtDevInfo').innerText = t.dev;
-            document.getElementById('btnBack').innerText = t.back;
-            document.querySelectorAll('.male-label').forEach(e => e.innerText = t.male);
-            document.querySelectorAll('.female-label').forEach(e => e.innerText = t.female);
-            document.querySelectorAll('.other-label').forEach(e => e.innerText = t.other);
+            document.getElementById('txtLeaderboard').innerText = t.lb;
         }
 
         function showTutorial() {
-            const step = uiText[currentLang].tutorial[tutStep];
+            const step = uiText[currentLang].tut[tutStep];
             document.getElementById('tutorialContent').innerHTML = `
                 <h2 class="text-2xl font-bold text-green-700 mb-4">${step.t}</h2>
                 <p class="text-gray-600">${step.d}</p>
             `;
-            document.getElementById('nextTutorial').innerText = tutStep === 2 ? (currentLang === 'bn' ? 'শুরু করি' : 'Start') : (currentLang === 'bn' ? 'পরের ধাপ' : 'Next');
+            document.getElementById('nextTutorial').innerText = tutStep === 2 ? (currentLang === 'bn' ? 'শুরু করি' : 'Start') : 'Next';
         }
 
         function nextTutorialStep() {
-            if (tutStep < 2) {
-                tutStep++;
-                showTutorial();
-            } else {
-                showSection('step1');
-            }
+            if (tutStep < 2) { tutStep++; showTutorial(); }
+            else { showSection('step1'); }
         }
 
         function selectAvatar(el) {
@@ -225,76 +205,85 @@
 
         function startQuizCreation() {
             userProfile.name = document.getElementById('userName').value;
-            if(!userProfile.name || !userProfile.avatar) return alert(currentLang === 'bn' ? "নাম ও অ্যাভাটার দিন" : "Enter Name & Avatar");
+            if(!userProfile.name || !userProfile.avatar) return alert("তথ্য দিন!");
             showSection('step2');
-            renderCreatorQuestion();
+            renderQuestion();
         }
 
-        function renderCreatorQuestion() {
-            if (userProfile.answers.length >= 10) return finalize();
+        function renderQuestion() {
+            if (userProfile.answers.length >= 10) {
+                saveAndFinish();
+                return;
+            }
             const q = activePool[0];
             document.getElementById('qCount').innerText = `${uiText[currentLang].qPrefix} ${userProfile.answers.length + 1}/10`;
             document.getElementById('currentQuestion').innerText = q[currentLang];
-            
             const grid = document.getElementById('optionsGrid');
             grid.innerHTML = '';
             q.o[currentLang].forEach((opt, i) => {
                 const b = document.createElement('button');
-                b.className = "w-full p-4 border-2 border-gray-100 rounded-xl hover:border-green-500 hover:bg-green-50 text-left font-medium";
+                b.className = "w-full p-4 border rounded-xl hover:bg-green-50 text-left font-medium";
                 b.innerText = opt;
                 b.onclick = () => {
-                    userProfile.answers.push({qIdx: questionsPool.indexOf(q), a: i});
+                    userProfile.answers.push({ q: q.en, a: i });
                     activePool.shift();
-                    renderCreatorQuestion();
+                    renderQuestion();
                 };
                 grid.appendChild(b);
             });
         }
 
         function skipQuestion() {
-            if(activePool.length > 1) {
-                activePool.shift();
-                renderCreatorQuestion();
-            }
+            if(activePool.length > 1) { activePool.shift(); renderQuestion(); }
         }
 
-        async function finalize() {
+        async function saveAndFinish() {
             const qId = "q_" + Date.now();
             userProfile.quizId = qId;
             localStorage.setItem('myQuizProfile', JSON.stringify(userProfile));
-            await window.fs.setDoc(window.fs.doc(window.fs.db, "quizzes", qId), {
-                creator: userProfile.name, avatar: userProfile.avatar, answers: userProfile.answers, results: []
-            });
-            location.href = `${window.location.origin}${window.location.pathname}?id=${qId}`;
+            
+            try {
+                await window.fs.setDoc(window.fs.doc(window.fs.db, "quizzes", qId), {
+                    creator: userProfile.name,
+                    avatar: userProfile.avatar,
+                    answers: userProfile.answers,
+                    results: []
+                });
+                goToSharePage(qId);
+            } catch(e) { alert("Error saving data!"); }
         }
 
-        async function loadFriendMode(id) {
-            const check = setInterval(async () => {
-                if (window.fs) {
-                    clearInterval(check);
-                    const snap = await window.fs.getDoc(window.fs.doc(window.fs.db, "quizzes", id));
-                    if (snap.exists()) {
-                        const data = snap.data();
-                        alert(`${data.creator} এর কুইজে আপনাকে স্বাগতম!`);
-                        // এখানে বন্ধুর কুইজ লজিক আগের মতই থাকবে...
-                    }
-                }
-            }, 500);
+        function goToSharePage(id) {
+            showSection('step3');
+            document.getElementById('shareLink').value = `${window.location.origin}${window.location.pathname}?id=${id}`;
+            listenResults(id);
         }
 
-        function listenToResults(id) {
+        function listenResults(id) {
             window.fs.onSnapshot(window.fs.doc(window.fs.db, "quizzes", id), (snap) => {
                 const data = snap.data();
                 const container = document.getElementById('leaderboardEntries');
-                container.innerHTML = `<h3 class="font-bold mb-2">${currentLang === 'bn' ? 'লিডারবোর্ড' : 'Leaderboard'}:</h3>`;
-                data.results.reverse().forEach(r => {
-                    container.innerHTML += `<div class="flex justify-between bg-gray-50 p-2 rounded"><span>${r.name}</span><b>${r.score}/10</b></div>`;
-                });
+                container.innerHTML = data.results.map(r => `
+                    <div class="flex justify-between bg-gray-50 p-2 rounded">
+                        <span>${r.name}</span><b>${r.score}/10</b>
+                    </div>
+                `).join('');
             });
         }
 
+        function shareSocial(p) {
+            const url = encodeURIComponent(document.getElementById('shareLink').value);
+            const link = p === 'whatsapp' ? `https://wa.me/?text=${url}` : `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+            window.open(link, '_blank');
+        }
+
+        function copyLink() {
+            navigator.clipboard.writeText(document.getElementById('shareLink').value);
+            alert("Copied!");
+        }
+
         function resetAllData() {
-            if(confirm("Reset Everything?")) { localStorage.clear(); location.href = location.pathname; }
+            if(confirm("সব মুছবেন?")) { localStorage.clear(); location.href = location.pathname; }
         }
 
         function showSection(id) {
@@ -302,8 +291,13 @@
             document.getElementById(id).classList.remove('hidden-section');
         }
 
-        function copyLink() { navigator.clipboard.writeText(document.getElementById('shareLink').value); alert("Copied!"); }
         function goBack() { showSection(userProfile.quizId ? 'step3' : 'step1'); }
+        
+        function changeLanguage(val) {
+            currentLang = val;
+            localStorage.setItem('lang', val);
+            location.reload();
+        }
     </script>
 </body>
 </html>
